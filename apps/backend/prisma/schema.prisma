@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  password  String
+  role      UserRole @default(CASHIER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]   // Orders created by this user
+  expenses  Expense[] // Expenses added by this user
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  CASHIER
+}
+
+model Item {
+  id           Int         @id @default(autoincrement())
+  name         String
+  sellingPrice Float
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  expenses     Expense[]
+  orderItems   OrderItem[]
+}
+
+model Expense {
+  id          Int       @id @default(autoincrement())
+  description String
+  amount      Float
+  type        ExpenseType @default(INGREDIENT)
+  itemId      Int?
+  item        Item?      @relation(fields: [itemId], references: [id])
+  userId      Int?
+  user        User?      @relation(fields: [userId], references: [id])
+  createdAt   DateTime  @default(now())
+}
+
+enum ExpenseType {
+  INGREDIENT
+  PACKAGING
+  UTILITY
+  OTHER
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  orderNumber String      @unique
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  createdAt   DateTime    @default(now())
+  orderItems  OrderItem[]
+  totalAmount Float       @default(0)
+
+  status      OrderStatus @default(PENDING)
+}
+
+model OrderItem {
+  id       Int    @id @default(autoincrement())
+  orderId  Int
+  order    Order  @relation(fields: [orderId], references: [id])
+  itemId   Int
+  item     Item   @relation(fields: [itemId], references: [id])
+  quantity Int
+  price    Float
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  CANCELLED
+}

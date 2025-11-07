@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "target": "ES2020",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowJs": true,                // Allow JS files
+    "checkJs": false,               // Optional: do not type-check JS files
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "rootDir": "src",
+    "outDir": "dist",
+    "baseUrl": "src",
+    "paths": {
+      "*": ["*"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.js"], // include both TS and JS
+  "exclude": ["node_modules", "dist"]
+}

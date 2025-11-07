@@ -1,0 +1,9 @@
+{
+    "name": "mo",
+    "private": true,
+    "version": "1.0.0",
+    "scripts": {
+      "dev": "echo 'root dev script'"
+    }
+  }
+  
