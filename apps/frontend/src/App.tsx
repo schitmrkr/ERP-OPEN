@@ -1,35 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import AppRouter from "./views/appRouter";
+import { ThemeProvider, CssBaseline, createTheme } from "@mui/material";
+
+const technoTheme = createTheme({
+  palette: {
+    mode: "dark",
+    background: {
+      default: "#0F172A", 
+      paper: "#111827",
+    },
+    primary: {
+      main: "#C0E0EE", 
+    },
+    secondary: {
+      main: "#7C3AED", 
+    },
+    text: {
+      primary: "#E2E8F0",
+      secondary: "#94A3B8",
+    },
+    action: {
+      hover: "#1E293B"
+    }
+  },
+  typography: {
+    fontFamily: "'Orbitron', sans-serif", 
+  },
+});
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ThemeProvider theme={technoTheme}>
+      <CssBaseline />
+        <AppRouter />
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
