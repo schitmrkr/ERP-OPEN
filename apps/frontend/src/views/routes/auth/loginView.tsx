@@ -8,24 +8,18 @@ import {
   CircularProgress,
   Link,
 } from "@mui/material";
-
+import { useLoginViewModel } from "../../../viewmodels/auth/useLoginViewModel";
 
 const LoginView: React.FC = () => {
-  const [loading, setLoading] = React.useState(false);
-  const [error, setError] = React.useState("");
-
-  const handleLogin = async () => {
-    setLoading(true);
-    try {
-      // simulate login call
-      await new Promise((r) => setTimeout(r, 1000));
-      setError("");
-    } catch (e) {
-      setError("An error has occurred.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { 
+    email, 
+    setEmail, 
+    password, 
+    setPassword, 
+    loading, 
+    error, 
+    handleLogin 
+  } = useLoginViewModel();
 
   return (
     <Box
@@ -61,8 +55,10 @@ const LoginView: React.FC = () => {
             label="Email Address"
             placeholder="Enter Email Address"
             fullWidth
-            error={!!error}
-            helperText={error}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            error={!!error.email}
+            helperText={error.email || ""}
             sx={{
               "& .MuiInputBase-input": {
                 padding: "14px 16px",
@@ -75,13 +71,28 @@ const LoginView: React.FC = () => {
             label="Password"
             placeholder="Enter Password"
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             fullWidth
+            error={!!error.password}
+            helperText={error.password || ""}
             sx={{
               "& .MuiInputBase-input": {
                 padding: "14px 16px",
               },
             }}
           />
+
+          {error.general && (
+            <Typography 
+              color="error" 
+              align="center"
+              sx={{
+                fontSize: 11,
+              }}>
+              {error.general}
+            </Typography>
+          )}
 
           <Button
             variant="contained"
