@@ -40,7 +40,7 @@ const LoginView: React.FC = () => {
         <Box
           sx={(theme) => ({
             p: 6,
-            borderRadius: 3,
+            borderRadius: 1,
             display: "flex",
             flexDirection: "column",
             gap: 2,
@@ -60,6 +60,9 @@ const LoginView: React.FC = () => {
             error={!!error.email}
             helperText={error.email || ""}
             sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "3px",
+              },
               "& .MuiInputBase-input": {
                 padding: "14px 16px",
               },
@@ -77,6 +80,9 @@ const LoginView: React.FC = () => {
             error={!!error.password}
             helperText={error.password || ""}
             sx={{
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "3px",
+              },
               "& .MuiInputBase-input": {
                 padding: "14px 16px",
               },
@@ -103,6 +109,7 @@ const LoginView: React.FC = () => {
             sx={{
               mt: 1,
               py: 1,
+              borderRadius: '3px',
             }}
           >
             {loading ? <CircularProgress size={24} color="inherit" /> : "Log In"}

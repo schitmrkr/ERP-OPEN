@@ -35,16 +35,16 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isCollapsed, isAc
   const Icon = item.icon;
   const activeStyles = {
     color: 'white',
-    bgcolor: 'primary.main', 
+    bgcolor: 'primary.paper', 
     '&:hover': { bgcolor: 'primary.dark' },
-    borderRadius: '12px',
+    borderRadius: '4px',
     margin: isCollapsed ? '0 auto' : '0px 8px',
   };
   
   const defaultStyles = {
-    color: 'primary.contrastText', 
+    color: 'white', 
     '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.1)' },
-    borderRadius: '12px',
+    borderRadius: '4px',
     margin: isCollapsed ? '0 auto' : '0 8px',
     
   };
@@ -69,7 +69,7 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isCollapsed, isAc
         sx={{
             minWidth: 0,
             mr: isCollapsed ? 0 : 0,
-            ml: 1.5,
+            ml: 1,
             justifyContent: 'center',
             alignItems: 'center',     // Ensures icon is vertically centered
             color: 'inherit',
@@ -135,6 +135,7 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
             color: 'white',
             display: isCollapsed ? 'none' : 'block',
             overflow: 'hidden',
+            fontSize: '1.3rem'
           }}
         >
           Mo:
@@ -146,7 +147,7 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
             fontWeight: 'bold',
             color: 'white',
             display: isCollapsed ? 'block' : 'none',
-            fontSize: '1.5rem',
+            fontSize: '1.3rem',
           }}
         >
           M:
@@ -173,7 +174,7 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
             color: 'white',
             '&:hover': { bgcolor: 'primary.light' },
             width: isCollapsed ? '100%' : 'auto',
-            borderRadius: '12px',
+            borderRadius: '4px',
             py: 1,
             transition: 'all 300ms ease',
             ...(!isCollapsed && { width: '100%', justifyContent: 'space-between', pr: 1 }),
@@ -181,7 +182,7 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
         >
           {!isCollapsed && (
             <Typography variant="subtitle2" sx={{ ml: 1, color: 'white' }}>
-              Collapse Menu
+              Collapse
             </Typography>
           )}
           <ToggleIcon size={20} />
