@@ -1,5 +1,6 @@
-import React from "react";
-import { Box, Paper, Typography, Button } from "@mui/material";
+import React, { useState } from "react";
+import { Box, Paper, Typography } from "@mui/material";
+import ERPSidebar from "../../components/sidebar/ERPSidebar"
 
 const DashboardView: React.FC = () => {
   const metrics = [
@@ -9,35 +10,21 @@ const DashboardView: React.FC = () => {
     { title: "Expenses", value: "$3,400" },
   ];
 
+  const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const toggleCollapse = async () => {
+    setIsCollapsed(!isCollapsed);
+  }
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      {/* Sidebar */}
-      <Box
-        sx={{
-          width: 240,
-          bgcolor: "primary.main",
-          color: "white",
-          p: 3,
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-        }}
-      >
-        <Typography variant="h6">ERP Menu</Typography>
-        <Button color="inherit">Dashboard</Button>
-        <Button color="inherit">Orders</Button>
-        <Button color="inherit">Items</Button>
-        <Button color="inherit">Expenses</Button>
-        <Button color="inherit">Users</Button>
-      </Box>
+      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse}/>
 
-      {/* Main Content */}
       <Box sx={{ flex: 1, p: 4, bgcolor: "background.default" }}>
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
 
-        {/* Metrics */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
           {metrics.map((metric) => (
             <Paper

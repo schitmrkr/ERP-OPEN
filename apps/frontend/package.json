@@ -17,6 +17,7 @@
     "@nestjs/jwt": "^11.0.1",
     "@nestjs/passport": "^11.0.5",
     "axios": "^1.13.2",
+    "lucide-react": "^0.553.0",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "react": "^19.1.1",
