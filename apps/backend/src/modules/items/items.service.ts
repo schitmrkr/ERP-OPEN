@@ -6,11 +6,14 @@ import { CreateItemsDto, UpdateItemsDto } from './dto';
 export class ItemsService {
   private prisma = new PrismaClient();
 
-  async createItem(dto: CreateItemsDto): Promise<Item> {
+  async createItem(dto: CreateItemsDto, userOrgId: number): Promise<Item> {
     return this.prisma.item.create({
       data: {
         name: dto.name,
         sellingPrice: dto.sellingPrice,
+        organization: {
+          connect: { id: userOrgId },
+        },
       },
     });
   }

@@ -7,7 +7,7 @@ import { CreateUserDto, UpdateUserDto } from './dto';
 export class UserService {
   private prisma = new PrismaClient();
 
-  async createUser(dto: CreateUserDto): Promise<User> {
+  async createUser(dto: CreateUserDto, organizationId: number): Promise<User> {
     const hashedPassword = await bcrypt.hash(dto.password, 10);
     return this.prisma.user.create({
       data: {
@@ -15,6 +15,9 @@ export class UserService {
         email: dto.email,
         password: hashedPassword,
         role: dto.role || UserRole.CASHIER,
+        organization: {
+          connect: { id: organizationId }
+        }
       },
     });
   }

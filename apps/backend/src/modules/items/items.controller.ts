@@ -9,7 +9,7 @@ export class ItemsController {
   constructor(private readonly itemService: ItemsService) {}
 
   @Post()
-  async createItem(@Body() dto: CreateItemsDto): Promise<Item> {
-    return this.itemService.createItem(dto);
+  async createItem(@Body() dto: CreateItemsDto): Promise<Item | null> {
+    return null;
   }
 }

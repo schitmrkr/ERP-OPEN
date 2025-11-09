@@ -10,7 +10,8 @@ export class UserController {
 
   @Post()
   async createUser(@Body() dto: CreateUserDto): Promise<User> {
-    return this.userService.createUser(dto);
+    const organizationId = 1;
+    return this.userService.createUser(dto, organizationId);
   }
 
   @Get()

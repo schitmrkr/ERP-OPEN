@@ -10,6 +10,7 @@ export class ExpensesController {
 
   @Post()
   async createItem(@Body() dto: CreateExpenseDto): Promise<Expense> {
-    return this.expenseService.createExpense(dto);
+    let organizationId = 1;
+    return this.expenseService.createExpense(dto, organizationId);
   }
 }

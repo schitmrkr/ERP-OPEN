@@ -6,7 +6,7 @@ import { CreateExpenseDto } from './dto';
 export class ExpensesService {
   private prisma = new PrismaClient();
 
-  async createExpense(dto: CreateExpenseDto): Promise<Expense> {
+  async createExpense(dto: CreateExpenseDto, organizationId: number): Promise<Expense> {
     return this.prisma.expense.create({
       data: {
         description: dto.description,
@@ -14,6 +14,7 @@ export class ExpensesService {
         type: dto.type,       // defaults to INGREDIENT if not provided
         itemId: dto.itemId ?? null,
         userId: dto.userId ?? null,
+        organizationId: organizationId,
       },
     });
   }
