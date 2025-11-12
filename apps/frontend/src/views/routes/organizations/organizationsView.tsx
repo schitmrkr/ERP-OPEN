@@ -10,20 +10,19 @@ import {
 } from "@mui/material";
 import { Edit2, Trash2 } from "lucide-react";
 import ERPSidebar from "../../components/sidebar/ERPSidebar";
-import { useItemsViewModel } from "../../../viewmodels/items/useItemsViewModel";
+import { useOrganizationsViewModel } from "../../../viewmodels/organizations/useOrganizationsViewModel";
 
-const ItemsView: React.FC = () => {
+const OrganizationsView: React.FC = () => {
   const { 
-    items,
+    organizations,
     loading,
     name,
     setName,
-    sellingPrice,
-    setSellingPrice,
+    editingId,
     save,
     remove,
-    editItem
-  } = useItemsViewModel();
+    editOrganization
+  } = useOrganizationsViewModel();
 
   const [isCollapsed, setIsCollapsed] = useState(true);
 
@@ -37,37 +36,41 @@ const ItemsView: React.FC = () => {
 
       <Box sx={{ flex: 1, p: 4, bgcolor: "background.default" }}>
         <Typography variant="h4" gutterBottom>
-          Items
+          Organizations
         </Typography>
 
         {/* Create/Edit Form */}
         <Paper sx={{ p: 3, mb: 4, borderRadius: 3, display: "flex", gap: 2, alignItems: "center" }}>
           <TextField
-            label="Item Name"
+            label="Organization Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
             sx={{ flex: 1 }}
-          />
-          <TextField
-            label="Selling Price"
-            type="number"
-            value={sellingPrice}
-            onChange={(e) => setSellingPrice(parseFloat(e.target.value))}
-            sx={{ width: 150 }}
           />
           <Button
             variant="contained"
             onClick={save}
             disabled={loading}
           >
-            {loading ? <CircularProgress size={24} /> : "Save"}
+            {loading ? <CircularProgress size={24} /> : editingId ? "Update" : "Create"}
           </Button>
+          {editingId && (
+            <Button
+              variant="outlined"
+              onClick={() => {
+                setName("");
+                editOrganization({ id: 0, name: "", createdAt: "", updatedAt: "" });
+              }}
+            >
+              Cancel
+            </Button>
+          )}
         </Paper>
 
-        {/* Items List */}
-        {items.map((item) => (
+        {/* Organizations List */}
+        {organizations.map((org) => (
           <Paper
-            key={item.id}
+            key={org.id}
             sx={{
               p: 2,
               mb: 2,
@@ -78,28 +81,29 @@ const ItemsView: React.FC = () => {
             }}
           >
             <Box>
-              <Typography variant="subtitle1">{item.name}</Typography>
+              <Typography variant="subtitle1">{org.name}</Typography>
               <Typography variant="body2" color="text.secondary">
-                ${item.sellingPrice.toFixed(2)}
+                Created: {new Date(org.createdAt).toLocaleDateString()}
               </Typography>
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>
-              <IconButton onClick={() => editItem(item)}>
+              <IconButton onClick={() => editOrganization(org)}>
                 <Edit2 size={20} />
               </IconButton>
-              <IconButton onClick={() => remove(item.id)}>
+              <IconButton onClick={() => remove(org.id)}>
                 <Trash2 size={20} />
               </IconButton>
             </Box>
           </Paper>
         ))}
 
-        {items.length === 0 && !loading && (
-          <Typography color="text.secondary">No items found.</Typography>
+        {organizations.length === 0 && !loading && (
+          <Typography color="text.secondary">No organizations found.</Typography>
         )}
       </Box>
     </Box>
   );
 };
 
-export default ItemsView;
+export default OrganizationsView;
+

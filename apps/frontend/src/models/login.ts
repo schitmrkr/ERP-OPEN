@@ -4,13 +4,10 @@ export interface LoginDto {
   }
   
 export interface LoginResponse {
-    token: string;
-    message: string;
-    user?: {
-        id: number;
-        name: string;
-        email: string;
-        role: string;
+    token: {
+        accessToken: string;
+        user: any;
     };
+    message: string;
 }
   

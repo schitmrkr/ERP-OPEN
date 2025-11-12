@@ -1,28 +1,29 @@
 import { useState, useEffect } from "react";
-import { type Item } from "../../models/items";
+import { type Organization, type CreateOrganizationDto, type UpdateOrganizationDto } from "../../models/organization";
 import axios, { AxiosError } from "axios";
 
-export const useItemsViewModel = () => {
-  const [items, setItems] = useState<Item[]>([]);
+export const useOrganizationsViewModel = () => {
+  const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [loading, setLoading] = useState(false);
   const [name, setName] = useState("");
-  const [sellingPrice, setSellingPrice] = useState(0);
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  const getAuthHeaders = () => {
+  const getAuthHeaders = (): HeadersInit => {
     const token = localStorage.getItem("token");
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
-  const fetchItems = async () => {
+  const fetchOrganizations = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`${BACKEND_URL}/api/items`, {
+      const res = await axios.get(`${BACKEND_URL}/api/organizations`, {
         headers: getAuthHeaders(),
       });
-      setItems(res.data);
+      // Backend returns single org for non-admin users, or array for admin
+      const data = Array.isArray(res.data) ? res.data : [res.data];
+      setOrganizations(data);
     } catch (err: any) {
       console.error(
         err instanceof AxiosError ? err.response?.data?.message : err.message || err
@@ -33,31 +34,29 @@ export const useItemsViewModel = () => {
   };
 
   const save = async () => {
-    if (!name || sellingPrice <= 0) return alert("Please provide valid name and price");
+    if (!name) return alert("Please provide a valid name");
+
     setLoading(true);
     try {
-      const payload = { name, sellingPrice };
-
       if (editingId) {
         await axios.patch(
-          `${BACKEND_URL}/api/items/${editingId}`,
-          payload,
+          `${BACKEND_URL}/api/organizations/${editingId}`,
+          { name },
           { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
         );
       } else {
         await axios.post(
-          `${BACKEND_URL}/api/items`,
-          payload,
+          `${BACKEND_URL}/api/organizations`,
+          { name },
           { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
         );
       }
 
       setName("");
-      setSellingPrice(0);
       setEditingId(null);
-      fetchItems();
+      fetchOrganizations();
     } catch (err: any) {
-      let msg = "Error saving item";
+      let msg = "Error saving organization";
       if (err instanceof AxiosError) {
         msg = err.response?.data?.message || msg;
       } else {
@@ -69,22 +68,22 @@ export const useItemsViewModel = () => {
     }
   };
 
-  const editItem = (item: Item) => {
-    setEditingId(item.id);
-    setName(item.name);
-    setSellingPrice(item.sellingPrice);
+  const editOrganization = (org: Organization) => {
+    setEditingId(org.id);
+    setName(org.name);
   };
 
   const remove = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this item?")) return;
+    if (!confirm("Are you sure you want to delete this organization?")) return;
+
     setLoading(true);
     try {
-      await axios.delete(`${BACKEND_URL}/api/items/${id}`, {
+      await axios.delete(`${BACKEND_URL}/api/organizations/${id}`, {
         headers: getAuthHeaders(),
       });
-      fetchItems();
+      fetchOrganizations();
     } catch (err: any) {
-      let msg = "Error deleting item";
+      let msg = "Error deleting organization";
       if (err instanceof AxiosError) {
         msg = err.response?.data?.message || msg;
       } else {
@@ -97,19 +96,18 @@ export const useItemsViewModel = () => {
   };
 
   useEffect(() => {
-    fetchItems();
+    fetchOrganizations();
   }, []);
 
   return {
-    items,
+    organizations,
     loading,
     name,
     setName,
-    sellingPrice,
-    setSellingPrice,
     editingId,
     save,
-    editItem,
+    editOrganization,
     remove,
   };
 };
+

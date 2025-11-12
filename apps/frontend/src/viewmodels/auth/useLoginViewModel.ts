@@ -19,7 +19,16 @@ export const useLoginViewModel = () => {
     
     try {
       const response = await loginUser(payload);
-      localStorage.setItem("token", response.token);
+      if (!response.token || typeof response.token.accessToken !== "string") {
+        alert("Invalid token from server");
+        setLoading(false);
+        return;
+      }
+      localStorage.setItem("token", response.token.accessToken);
+      // Store user info for RBAC
+      if (response.token.user) {
+        localStorage.setItem("user", JSON.stringify(response.token.user));
+      }
       navigate("/");
     } catch (e: any) {
       if (e.errors) {

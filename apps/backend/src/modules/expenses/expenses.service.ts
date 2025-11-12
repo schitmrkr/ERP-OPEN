@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaClient, Expense } from '@prisma/client';
-import { CreateExpenseDto } from './dto';
+import { PrismaClient, Expense, ExpenseType } from '@prisma/client';
+import { CreateExpenseDto, UpdateExpenseDto } from './dto';
 
 @Injectable()
 export class ExpensesService {
@@ -28,6 +28,29 @@ export class ExpensesService {
     });
   }
 
+  async getExpensesByOrganization(
+    organizationId: number,
+    itemId?: number,
+    userId?: number,
+    type?: ExpenseType,
+  ): Promise<Expense[]> {
+    const where: any = { organizationId };
+    if (itemId) where.itemId = itemId;
+    if (userId) where.userId = userId;
+    if (type) where.type = type;
+    
+    return this.prisma.expense.findMany({
+      where,
+      include: {
+        item: true,
+        user: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+  }
+
   async getExpenseById(id: number): Promise<Expense> {
     const expense = await this.prisma.expense.findUnique({
       where: { id },
@@ -39,6 +62,26 @@ export class ExpensesService {
 
     if (!expense) throw new NotFoundException('Expense not found');
     return expense;
+  }
+
+  async updateExpense(id: number, dto: UpdateExpenseDto): Promise<Expense> {
+    await this.getExpenseById(id); // ensure exists
+    
+    const data: any = {};
+    if (dto.description !== undefined) data.description = dto.description;
+    if (dto.amount !== undefined) data.amount = dto.amount;
+    if (dto.type !== undefined) data.type = dto.type;
+    if (dto.itemId !== undefined) data.itemId = dto.itemId;
+    if (dto.userId !== undefined) data.userId = dto.userId;
+    
+    return this.prisma.expense.update({
+      where: { id },
+      data,
+      include: {
+        item: true,
+        user: true,
+      },
+    });
   }
 
   async deleteExpense(id: number): Promise<Expense> {

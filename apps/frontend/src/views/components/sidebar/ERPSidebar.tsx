@@ -1,6 +1,8 @@
 import React from 'react';
-import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText, IconButton } from '@mui/material';
-import { LayoutDashboard, ShoppingCart, Package, Receipt, Users, ChevronLeft, ChevronRight } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText, IconButton, Button } from '@mui/material';
+import { LayoutDashboard, ShoppingCart, Package, Receipt, Users, Building2, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { useAuth } from '../../../hooks/useAuth';
 
 const drawerWidth = 240;
 const collapsedWidth = 72;
@@ -24,14 +26,16 @@ isActive: boolean;
 }
 
 const navItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, route: '/dashboard' },
+  { name: 'Dashboard', icon: LayoutDashboard, route: '/' },
   { name: 'Orders', icon: ShoppingCart, route: '/orders' },
   { name: 'Items', icon: Package, route: '/items' },
   { name: 'Expenses', icon: Receipt, route: '/expenses' },
   { name: 'Users', icon: Users, route: '/users' },
+  { name: 'Organizations', icon: Building2, route: '/organizations' },
 ];
 
 const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isCollapsed, isActive }) => {
+  const navigate = useNavigate();
   const Icon = item.icon;
   const activeStyles = {
     color: 'white',
@@ -52,9 +56,7 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isCollapsed, isAc
   return (
     <ListItemButton
       key={item.name}
-      component="a"
-      href={item.route}
-      onClick={(e) => { e.preventDefault(); console.log(`Navigating to ${item.name}`); }}
+      onClick={() => navigate(item.route)}
       sx={{
         ...(isActive ? activeStyles : defaultStyles),
         minHeight: 48,
@@ -96,8 +98,16 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isCollapsed, isAc
 
 
 const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const currentWidth = isCollapsed ? collapsedWidth : drawerWidth;
   const ToggleIcon = isCollapsed ? ChevronRight : ChevronLeft;
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <Box
@@ -155,17 +165,37 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
       </Box>
 
       <List sx={{ px: isCollapsed ? 0 : 1, flexGrow: 1 }}>
-        {navItems.map((item, index) => (
+        {navItems.map((item) => (
           <SidebarNavItem 
             key={item.name} 
             item={item} 
             isCollapsed={isCollapsed} 
-            isActive={index === 0} 
+            isActive={location.pathname === item.route} 
           />
         ))}
       </List>
       
-      <Box sx={{ p: isCollapsed ? 1 : 2, borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+      <Box sx={{ p: isCollapsed ? 1 : 2, borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {/* Logout Button */}
+        <Button
+          onClick={handleLogout}
+          startIcon={!isCollapsed ? <LogOut size={20} /> : undefined}
+          sx={{
+            bgcolor: 'error.main',
+            color: 'white',
+            '&:hover': { bgcolor: 'error.dark' },
+            width: '100%',
+            borderRadius: '4px',
+            py: 1.5,
+            justifyContent: isCollapsed ? 'center' : 'flex-start',
+            textTransform: 'none',
+            gap: isCollapsed ? 0 : 1,
+          }}
+        >
+          {isCollapsed ? <LogOut size={20} /> : 'Logout'}
+        </Button>
+
+        {/* Collapse Button */}
         <IconButton
           onClick={toggleCollapse}
           aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
@@ -173,11 +203,11 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
             bgcolor: 'primary.dark',
             color: 'white',
             '&:hover': { bgcolor: 'primary.light' },
-            width: isCollapsed ? '100%' : 'auto',
+            width: '100%',
             borderRadius: '4px',
             py: 1,
             transition: 'all 300ms ease',
-            ...(!isCollapsed && { width: '100%', justifyContent: 'space-between', pr: 1 }),
+            ...(!isCollapsed && { justifyContent: 'space-between', pr: 1 }),
           }}
         >
           {!isCollapsed && (

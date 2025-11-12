@@ -26,6 +26,23 @@ export class UserService {
     return this.prisma.user.findMany();
   }
 
+  async getUsersByOrganization(organizationId: number): Promise<Omit<User, 'password'>[]> {
+    const users = await this.prisma.user.findMany({
+      where: { organizationId },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        organizationId: true,
+        createdAt: true,
+        updatedAt: true,
+        // Exclude password
+      },
+    });
+    return users as Omit<User, 'password'>[];
+  }
+
   async getUserById(id: number): Promise<User> {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('User not found');
