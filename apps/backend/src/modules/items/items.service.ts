@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaClient, Item } from '@prisma/client';
+import { Item } from '@prisma/client';
+import { PrismaService } from '../../shared/prisma/prisma.service';
 import { CreateItemsDto, UpdateItemsDto } from './dto';
 
 @Injectable()
 export class ItemsService {
-  private prisma = new PrismaClient();
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async createItem(dto: CreateItemsDto, userOrgId: number): Promise<Item> {
     return this.prisma.item.create({

@@ -1,10 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Logger } from '@nestjs/common';
 import { PrismaClient, Order, OrderItem, OrderStatus } from '@prisma/client';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
+import { PrismaService } from '../../shared/prisma/prisma.service';
 
 @Injectable()
 export class OrdersService {
-  private prisma = new PrismaClient();
+  private readonly logger = new Logger(OrdersService.name);
+
+  constructor(private readonly prisma: PrismaService) {}
 
   async createOrder(dto: CreateOrderDto, organizationId: number): Promise<Order> {
     // Validate user belongs to organization
@@ -12,12 +15,15 @@ export class OrdersService {
     if (!user || user.organizationId !== organizationId) {
       throw new NotFoundException('User not found or access denied');
     }
+    this.logger.log(`User: ${JSON.stringify(user)}`);
 
     // Validate all items belong to same organization
     const itemIds = dto.orderItems.map(oi => oi.itemId);
     const items = await this.prisma.item.findMany({
       where: { id: { in: itemIds } },
     });
+
+    this.logger.log(`Items: ${JSON.stringify(items)}`);
 
     if (items.length !== itemIds.length) {
       throw new NotFoundException('One or more items not found');
@@ -31,6 +37,8 @@ export class OrdersService {
     // Calculate total amount
     const totalAmount = dto.orderItems.reduce((sum, oi) => sum + (oi.quantity * oi.price), 0);
 
+    this.logger.log(`Total amount: ${totalAmount}`);
+
     // Check if orderNumber already exists
     const existingOrder = await this.prisma.order.findUnique({
       where: { orderNumber: dto.orderNumber },
@@ -39,14 +47,15 @@ export class OrdersService {
       throw new BadRequestException('Order number already exists');
     }
 
-    // Create order with orderItems in transaction
-    return this.prisma.$transaction(async (tx) => {
+    this.logger.log(`Existing order: ${JSON.stringify(existingOrder)}`);
+
+    const orderId = await this.prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
         data: {
           orderNumber: dto.orderNumber,
           userId: dto.userId,
-          organizationId: organizationId,
-          totalAmount: totalAmount,
+          organizationId,
+          totalAmount,
           status: OrderStatus.PENDING,
         },
       });
@@ -60,9 +69,12 @@ export class OrdersService {
         })),
       });
 
-      return this.getOrderById(order.id);
+      return order.id;
     });
+
+      return this.getOrderById(orderId);
   }
+
 
   async getOrdersByOrganization(organizationId: number): Promise<Order[]> {
     return this.prisma.order.findMany({

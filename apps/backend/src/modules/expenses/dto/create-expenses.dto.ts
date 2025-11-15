@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsOptional, IsNumber, IsEnum, IsInt, Min } from 'class-validator';
-import { ExpenseType } from '@prisma/client';
+import { IsNotEmpty, IsOptional, IsNumber, IsEnum, IsInt, Min, ValidateIf } from 'class-validator';
+import { ExpenseType, ExpenseNature } from '@prisma/client';
 
 export class CreateExpenseDto {
   @IsNotEmpty()
@@ -10,14 +10,14 @@ export class CreateExpenseDto {
   amount!: number;
 
   @IsOptional()
+  @IsEnum(ExpenseNature)
+  expenseNature?: ExpenseNature; // default to DIRECT
+
+  @ValidateIf(o => o.expenseNature === ExpenseNature.DIRECT)
   @IsEnum(ExpenseType)
-  type?: ExpenseType; 
+  type?: ExpenseType; // required only if DIRECT
 
   @IsOptional()
   @IsInt()
   itemId?: number;
-
-  @IsOptional()
-  @IsInt()
-  userId?: number;
 }

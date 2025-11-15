@@ -57,28 +57,43 @@ model Item {
 }
 
 model Expense {
-  id             Int        @id @default(autoincrement())
+  id             Int          @id @default(autoincrement())
   description    String
   amount         Float
-  type           ExpenseType @default(INGREDIENT)
-  createdAt      DateTime    @default(now())
+  type           ExpenseType?
+  expenseNature  ExpenseNature  @default(DIRECT) // new field
+  createdAt      DateTime       @default(now())
 
+  // Direct expense: linked to a specific item
   itemId         Int?
-  item           Item?       @relation(fields: [itemId], references: [id])
+  item           Item?          @relation(fields: [itemId], references: [id])
 
+  // Optional: who made the expense
   userId         Int?
-  user           User?       @relation(fields: [userId], references: [id])
+  user           User?          @relation(fields: [userId], references: [id])
 
+  // Organization
   organizationId Int
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  organization   Organization   @relation(fields: [organizationId], references: [id])
+}
+
+/// Define if the expense is direct (item-related) or indirect (overhead)
+enum ExpenseNature {
+  DIRECT
+  INDIRECT
 }
 
 enum ExpenseType {
   INGREDIENT
   PACKAGING
   UTILITY
+  TRANSPORT
+  MAINTENANCE
+  RENT
+  SALARY
   OTHER
 }
+
 
 model Order {
   id             Int         @id @default(autoincrement())

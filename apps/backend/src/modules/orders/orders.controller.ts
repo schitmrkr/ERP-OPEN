@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Param, Delete, Body, Patch, ParseIntPipe, UseGuards, Request, NotFoundException } from '@nestjs/common';
+import { Controller, 
+         Get, 
+         Post, 
+         Param, 
+         Delete, 
+         Body, 
+         Patch, 
+         ParseIntPipe, 
+         UseGuards, 
+         Request, 
+         NotFoundException, 
+         Logger 
+        } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { Order } from '@prisma/client';
@@ -8,6 +20,8 @@ import { PrismaService } from '../../shared/prisma/prisma.service';
 @UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersController {
+  private readonly logger = new Logger(OrdersController.name);
+  
   constructor(
     private readonly ordersService: OrdersService,
     private readonly prisma: PrismaService
@@ -16,12 +30,15 @@ export class OrdersController {
   @Post()
   async createOrder(@Body() dto: CreateOrderDto, @Request() req: any): Promise<Order> {
     const userId = req.user?.userId;
+    this.logger.log(`Creating order for user ${userId}`);
     if (!userId) throw new NotFoundException('User not found in token');
     const user = await this.prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new NotFoundException('User not found');
     
     // Override userId in DTO with authenticated user's ID for security
     dto.userId = user.id;
+
+    this.logger.log(`Order data: ${JSON.stringify(dto)}`);
     
     return this.ordersService.createOrder(dto, user.organizationId);
   }
