@@ -1,5 +1,5 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-import { Item } from '@prisma/client';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Item, Prisma } from '@prisma/client';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 import { CreateItemsDto, UpdateItemsDto } from './dto';
 
@@ -56,8 +56,16 @@ export class ItemsService {
   async deleteItem(id: number): Promise<Item> {
     await this.getItemById(id);
 
-    return this.prisma.item.delete({
-      where: { id },
-    });
+    try {
+      return await this.prisma.item.delete({
+        where: { id },
+      });
+    } catch (err: any) {
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2003') {
+        // Foreign key constraint violation: item is referenced by order items or expenses
+        throw new BadRequestException('Cannot delete this item because it is used in existing orders or expenses.');
+      }
+      throw err;
+    }
   }
 }

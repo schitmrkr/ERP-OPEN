@@ -91,6 +91,27 @@ export class OrdersController {
     return this.ordersService.updateOrder(id, dto);
   }
 
+  @Patch(':id/status')
+  async updateOrderStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateOrderDto,
+    @Request() req: any,
+  ): Promise<Order> {
+    const userId = req.user?.userId;
+    if (!userId) throw new NotFoundException('User not found in token');
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) throw new NotFoundException('User not found');
+
+    const order = await this.ordersService.getOrderById(id);
+
+    // Users can only update orders from their organization
+    if (order.organizationId !== user.organizationId) {
+      throw new NotFoundException('Order not found');
+    }
+
+    return this.ordersService.updateOrder(id, dto);
+  }
+
   @Delete(':id')
   async deleteOrder(@Param('id', ParseIntPipe) id: number, @Request() req: any): Promise<Order> {
     const userId = req.user?.userId;

@@ -1,11 +1,11 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText, IconButton, Button } from '@mui/material';
-import { LayoutDashboard, ShoppingCart, Package, Receipt, Users, Building2, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { LayoutDashboard, ShoppingCart, Package, Receipt, Users, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
 
-const drawerWidth = 240;
-const collapsedWidth = 72;
+export const drawerWidth = 240;
+export const collapsedWidth = 72;
 
 interface ERPSidebarProps {
     isCollapsed: boolean;
@@ -31,7 +31,6 @@ const navItems = [
   { name: 'Items', icon: Package, route: '/items' },
   { name: 'Expenses', icon: Receipt, route: '/expenses' },
   { name: 'Users', icon: Users, route: '/users' },
-  { name: 'Organizations', icon: Building2, route: '/organizations' },
 ];
 
 const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isCollapsed, isActive }) => {
@@ -63,8 +62,10 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isCollapsed, isAc
         justifyContent: 'center', // Always center content when collapsed
         alignItems: 'center',     // Ensures vertical centering
         px: isCollapsed ? 0 : 2.5,
-        py: 0,                    // Remove default vertical padding
+        py: 0,                  // Remove default vertical padding
         gap: isCollapsed ? 0 : 1, // Optional: control spacing when not collapsed
+        mx: isCollapsed ? 1 : 0,
+        paddingRight: isCollapsed ? 2 : 0
       }}
     >
       <ListItemIcon
@@ -72,25 +73,31 @@ const SidebarNavItem: React.FC<SidebarNavItemProps> = ({ item, isCollapsed, isAc
             minWidth: 0,
             mr: isCollapsed ? 0 : 0,
             ml: 1,
-            justifyContent: 'center',
-            alignItems: 'center',     // Ensures icon is vertically centered
+            justifyContent: isCollapsed ? 'center' : 'flex-start',
+            alignItems: 'center',    
             color: 'inherit',
-            width: 40,                // Optional: fixed width for consistency
-            height: 40,               // Optional: fixed height to center icon
-          display: 'flex',
+            width: isCollapsed ? '100%': 'auto',      
+            height: 40,       
+            display: 'flex',
+            paddingLeft: isCollapsed ? 0.6 : 0,
         }}
       >
         <Icon size={24} />
       </ListItemIcon>
+      {!isCollapsed && (
       <ListItemText
         primary={item.name}
         slotProps={{
-            primary: {
-                noWrap: true,
-                sx: { opacity: isCollapsed ? 0 : 1, transition: 'opacity 300ms' },
-            }
+          primary: {
+            noWrap: true,
+            sx: { opacity: 1, 
+                  transition: 'opacity 300ms',
+                  marginLeft: 2,
+            },
+          },
         }}
       />
+    )}
     </ListItemButton>
   );
 };
@@ -112,44 +119,63 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
   return (
     <Box
       component="nav"
-      sx={{
+      sx={(theme) => ({
         width: currentWidth,
         flexShrink: 0,
+        position: 'fixed', 
         '& .MuiDrawer-paper': { width: currentWidth, boxSizing: 'border-box' },
         transition: 'width 300ms ease',
         height: '100vh',
         bgcolor: 'primary.secondary',
         boxShadow: 3,
-        borderRight: "1px solid gray",
+        borderRight: `1px solid ${theme.palette.divider}`,
         display: 'flex',
         flexDirection: 'column',
-      }}
+      })}
     >
       <Box 
         sx={{ 
           p: 2.5, 
           borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
-          mb: 1, 
-          height: 80, 
+          mb: 0, 
+          mt: 1,
+          height: 60, 
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: isCollapsed ? 'center': 'left',
+          ml: isCollapsed ? 0: 2,
+          overflow: "hidden",
         }}
       >
-        <Typography 
-          variant="h6" 
-          noWrap 
-          component="div"
-          sx={{
-            fontWeight: 'bold',
-            color: 'white',
-            display: isCollapsed ? 'none' : 'block',
-            overflow: 'hidden',
-            fontSize: '1.3rem'
-          }}
-        >
-          Mo:
-        </Typography>
+          <Typography
+            sx={{
+              fontWeight: 550,
+              fontSize: "1.2rem",
+              color: "white",
+              textTransform: "none",
+              letterSpacing: "1px",
+              display: isCollapsed ? "none": "flex",
+              alignItems: "center",
+              gap: 0.5,
+            }}
+          >
+            Mo:
+            <span
+              style={{
+                background: "white",
+                color: "#1A1A1A",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                marginLeft: "10px",
+                display: isCollapsed ? "none": "block",
+                fontWeight: 800,
+                fontSize: "1rem",
+              }}
+            >
+              Console
+            </span>
+          </Typography>
+
          <Typography 
           variant="h6" 
           component="div"
@@ -157,7 +183,7 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
             fontWeight: 'bold',
             color: 'white',
             display: isCollapsed ? 'block' : 'none',
-            fontSize: '1.3rem',
+            fontSize: '1.2rem',
           }}
         >
           M:
@@ -175,24 +201,31 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
         ))}
       </List>
       
-      <Box sx={{ p: isCollapsed ? 1 : 2, borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {/* Logout Button */}
+      <Box sx={{ p: 1, borderTop: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', flexDirection: 'column', gap: 1, alignItems: isCollapsed ? 'center' : 'stretch' }}>
         <Button
           onClick={handleLogout}
-          startIcon={!isCollapsed ? <LogOut size={20} /> : undefined}
+          //startIcon={!isCollapsed ? <LogOut size={20} /> : undefined}
           sx={{
             bgcolor: 'error.main',
             color: 'white',
             '&:hover': { bgcolor: 'error.dark' },
             width: '100%',
+            minWidth: isCollapsed ? 0 : undefined,
             borderRadius: '4px',
-            py: 1.5,
-            justifyContent: isCollapsed ? 'center' : 'flex-start',
+            py: 1,
+            px: isCollapsed ? 0 : 2,
+            ...(!isCollapsed && { justifyContent: 'space-between', pr: 1 }),
             textTransform: 'none',
             gap: isCollapsed ? 0 : 1,
+            alignSelf: isCollapsed ? 'center' : 'stretch',
           }}
         >
-          {isCollapsed ? <LogOut size={20} /> : 'Logout'}
+          {!isCollapsed && (
+            <Typography variant="subtitle2" sx={{ ml: 1, color: 'white' }}>
+              Logout
+            </Typography>
+          )}
+          <LogOut size={20} />
         </Button>
 
         {/* Collapse Button */}
@@ -206,7 +239,9 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
             width: '100%',
             borderRadius: '4px',
             py: 1,
+            px: isCollapsed ? 0 : 2,
             transition: 'all 300ms ease',
+            alignSelf: isCollapsed ? 'center' : 'stretch',
             ...(!isCollapsed && { justifyContent: 'space-between', pr: 1 }),
           }}
         >

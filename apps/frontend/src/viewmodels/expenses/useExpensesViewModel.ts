@@ -1,20 +1,19 @@
 import { useState, useEffect } from "react";
-import { type Expense, type CreateExpenseDto, type UpdateExpenseDto, ExpenseType } from "../../models/expense";
+import { type Expense, type CreateExpenseDto, type UpdateExpenseDto, ExpenseType, ExpenseNature } from "../../models/expense";
 import { type Item } from "../../models/items";
-import { type User } from "../../models/user";
 import axios, { AxiosError } from "axios";
 
 export const useExpensesViewModel = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [items, setItems] = useState<Item[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [description, setDescription] = useState("");
   const [amount, setAmount] = useState(0);
+  const [expenseNature, setExpenseNature] = useState<ExpenseNature>(ExpenseNature.DIRECT);
   const [type, setType] = useState<ExpenseType>(ExpenseType.INGREDIENT);
   const [itemId, setItemId] = useState<number | null>(null);
-  const [userId, setUserId] = useState<number | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [notification, setNotification] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -50,28 +49,40 @@ export const useExpensesViewModel = () => {
     }
   };
 
-  const fetchUsers = async () => {
-    try {
-      const res = await axios.get(`${BACKEND_URL}/api/users`, {
-        headers: getAuthHeaders(),
-      });
-      setUsers(res.data);
-    } catch (err: any) {
-      console.error("Failed to fetch users");
-    }
-  };
-
   const save = async () => {
-    if (!description || amount <= 0) return alert("Please provide valid description and amount");
+    if (!description || amount <= 0) {
+      setNotification({ type: "error", message: "Please provide valid description and amount" });
+      return;
+    }
+
+    // When expense is DIRECT, enforce type and item selection on the frontend
+    if (expenseNature === ExpenseNature.DIRECT) {
+      if (!type) {
+        setNotification({ type: "error", message: "Please select an expense type for direct expenses" });
+        return;
+      }
+      if (!itemId) {
+        setNotification({ type: "error", message: "Please select an item for direct expenses" });
+        return;
+      }
+    }
+
+    // When expense is INDIRECT, enforce type selection (different allowed set)
+    if (expenseNature === ExpenseNature.INDIRECT && !type) {
+      setNotification({ type: "error", message: "Please select an expense type for indirect expenses" });
+      return;
+    }
 
     setLoading(true);
     try {
       const payload: CreateExpenseDto | UpdateExpenseDto = {
         description,
         amount,
+        expenseNature,
+        // type is required for both natures (allowed set differs per nature)
         type,
-        itemId: itemId || null,
-        userId: userId || null,
+        // item is only relevant for DIRECT expenses; backend accepts optional itemId
+        itemId: expenseNature === ExpenseNature.DIRECT ? itemId || null : undefined,
       };
 
       if (editingId) {
@@ -90,10 +101,11 @@ export const useExpensesViewModel = () => {
 
       setDescription("");
       setAmount(0);
+      setExpenseNature(ExpenseNature.DIRECT);
       setType(ExpenseType.INGREDIENT);
       setItemId(null);
-      setUserId(null);
       setEditingId(null);
+      setNotification({ type: "success", message: editingId ? "Expense updated successfully" : "Expense created successfully" });
       fetchExpenses();
     } catch (err: any) {
       let msg = "Error saving expense";
@@ -102,7 +114,7 @@ export const useExpensesViewModel = () => {
       } else {
         msg = err.message || msg;
       }
-      alert(msg);
+      setNotification({ type: "error", message: msg });
     } finally {
       setLoading(false);
     }
@@ -112,9 +124,9 @@ export const useExpensesViewModel = () => {
     setEditingId(expense.id);
     setDescription(expense.description);
     setAmount(expense.amount);
-    setType(expense.type);
+    setExpenseNature(expense.expenseNature || ExpenseNature.DIRECT);
+    setType(expense.type || ExpenseType.INGREDIENT);
     setItemId(expense.itemId);
-    setUserId(expense.userId);
   };
 
   const remove = async (id: number) => {
@@ -125,6 +137,7 @@ export const useExpensesViewModel = () => {
       await axios.delete(`${BACKEND_URL}/api/expenses/${id}`, {
         headers: getAuthHeaders(),
       });
+      setNotification({ type: "success", message: "Expense deleted successfully" });
       fetchExpenses();
     } catch (err: any) {
       let msg = "Error deleting expense";
@@ -133,7 +146,7 @@ export const useExpensesViewModel = () => {
       } else {
         msg = err.message || msg;
       }
-      alert(msg);
+      setNotification({ type: "error", message: msg });
     } finally {
       setLoading(false);
     }
@@ -142,28 +155,29 @@ export const useExpensesViewModel = () => {
   useEffect(() => {
     fetchExpenses();
     fetchItems();
-    fetchUsers();
   }, []);
 
   return {
     expenses,
     items,
-    users,
     loading,
     description,
     setDescription,
     amount,
     setAmount,
+    expenseNature,
+    setExpenseNature,
     type,
     setType,
     itemId,
     setItemId,
-    userId,
-    setUserId,
     editingId,
     save,
     editExpense,
     remove,
+    notification,
+    setNotification,
   };
 };
+
 

@@ -5,6 +5,7 @@ import { ExpenseModule } from './modules/expenses/expenses.module';
 import { OrderModule } from './modules/orders/orders.module';
 import { OrganizationModule } from './modules/organizations/organizations.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { StatModule } from './modules/stats/stats.module';
 
 import { PrismaModule } from './shared/prisma/prisma.module'
 
@@ -16,6 +17,7 @@ import { PrismaModule } from './shared/prisma/prisma.module'
     OrderModule, 
     OrganizationModule,
     AuthModule,
+    StatModule,
     PrismaModule
   ],  
   controllers: [],

@@ -8,9 +8,13 @@ import {
   CircularProgress,
   IconButton
 } from "@mui/material";
+import NotificationBox from "../../components/NotificationBox";
 import { Edit2, Trash2 } from "lucide-react";
 import ERPSidebar from "../../components/sidebar/ERPSidebar";
 import { useItemsViewModel } from "../../../viewmodels/items/useItemsViewModel";
+import { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
+
+import { useUIStore } from "../../../stores/uiStore";
 
 const ItemsView: React.FC = () => {
   const { 
@@ -22,26 +26,38 @@ const ItemsView: React.FC = () => {
     setSellingPrice,
     save,
     remove,
-    editItem
+    editItem,
+    notification,
+    setNotification,
   } = useItemsViewModel();
 
-  const [isCollapsed, setIsCollapsed] = useState(true);
-
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
+  const isCollapsed = isSidebarCollapsed;
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
+      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
 
-      <Box sx={{ flex: 1, p: 4, bgcolor: "background.default" }}>
+      <Box sx={{  flex: 1,
+                  p: 4, 
+                  overflowY: 'auto',
+                  transition: 'margin 300ms ease',
+                  marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
+                  bgcolor: "background.default" }}>
         <Typography variant="h4" gutterBottom>
           Items
         </Typography>
 
+        {notification && (
+          <NotificationBox
+            type={notification.type}
+            message={notification.message}
+            onClose={() => setNotification(null)}
+          />
+        )}
+
         {/* Create/Edit Form */}
-        <Paper sx={{ p: 3, mb: 4, borderRadius: 3, display: "flex", gap: 2, alignItems: "center" }}>
+        <Paper sx={{ p: 3, mb: 4, borderRadius: 1, display: "flex", gap: 2, alignItems: "center" }}>
           <TextField
             label="Item Name"
             value={name}
@@ -74,13 +90,13 @@ const ItemsView: React.FC = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              borderRadius: 3,
+              borderRadius: 1,
             }}
           >
             <Box>
               <Typography variant="subtitle1">{item.name}</Typography>
               <Typography variant="body2" color="text.secondary">
-                ${item.sellingPrice.toFixed(2)}
+                Rs. {item.sellingPrice.toFixed(2)}
               </Typography>
             </Box>
             <Box sx={{ display: "flex", gap: 1 }}>

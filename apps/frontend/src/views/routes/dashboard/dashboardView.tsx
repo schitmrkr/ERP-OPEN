@@ -1,8 +1,19 @@
-import React, { useState } from "react";
-import { Box, Paper, Typography, CircularProgress, Chip } from "@mui/material";
-import ERPSidebar from "../../components/sidebar/ERPSidebar";
+import React, { useState, useEffect } from "react";
+import {
+  Box,
+  Paper,
+  Typography,
+  CircularProgress,
+  Chip,
+  Tabs,
+  Tab,
+} from "@mui/material";
+import { LineChart } from "@mui/x-charts/LineChart";
+import ERPSidebar, { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
 import { useDashboardViewModel } from "../../../viewmodels/dashboard/useDashboardViewModel";
 import { OrderStatus } from "../../../models/order";
+
+import { useUIStore } from "../../../stores/uiStore";
 
 const DashboardView: React.FC = () => {
   const {
@@ -15,20 +26,31 @@ const DashboardView: React.FC = () => {
     averageItemPrice,
     recentOrders,
     topItems,
+    weeklyOrders,
+    weeklySales,
+    weeklyExpenses,
+    monthlyOrders,
+    monthlySales,
+    monthlyExpenses,
+    yearlyOrders,
+    yearlySales,
+    yearlyExpenses,
+    chartData,
+    fetchChartData,
   } = useDashboardViewModel();
 
-  const [isCollapsed, setIsCollapsed] = useState(true);
+  
+  const [chartRange, setChartRange] = useState<"daily" | "weekly" | "monthly" | "yearly">(
+    "daily"
+  );
 
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  const tabLabels: ("daily" | "weekly" | "monthly" | "yearly")[] = ["daily", "weekly", "monthly", "yearly"];
 
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "USD",
-    }).format(amount);
-  };
+  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
+  const isCollapsed = isSidebarCollapsed;
+
+  const formatCurrency = (amount: number) =>
+    !Number.isFinite(amount) ? "Rs. 0.00" : `Rs. ${amount.toFixed(2)}`;
 
   const getStatusColor = (status: OrderStatus) => {
     switch (status) {
@@ -50,11 +72,46 @@ const DashboardView: React.FC = () => {
     { title: "Avg Item Price", value: formatCurrency(averageItemPrice) },
   ];
 
+  const timeMetrics = [
+    {
+      title: "Weekly Stats",
+      value: `Orders: ${weeklyOrders}, Sales: ${formatCurrency(
+        weeklySales
+      )}, Expenses: ${formatCurrency(weeklyExpenses)}`,
+    },
+    {
+      title: "Monthly Stats",
+      value: `Orders: ${monthlyOrders}, Sales: ${formatCurrency(
+        monthlySales
+      )}, Expenses: ${formatCurrency(monthlyExpenses)}`,
+    },
+    {
+      title: "Yearly Stats",
+      value: `Orders: ${yearlyOrders}, Sales: ${formatCurrency(
+        yearlySales
+      )}, Expenses: ${formatCurrency(yearlyExpenses)}`,
+    },
+  ];
+
+  useEffect(() => {
+    fetchChartData(chartRange);
+  }, [chartRange]);
+
+  const handleTabChange = (_: React.SyntheticEvent, value: number) => {
+    const ranges: ("daily" | "weekly" | "monthly" | "yearly")[] = ["daily", "weekly", "monthly", "yearly"];
+    setChartRange(ranges[value]);
+  };
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
+      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
 
-      <Box sx={{ flex: 1, p: 4, bgcolor: "background.default" }}>
+      <Box sx={{  flex: 1,
+                  p: 4, 
+                  overflowY: 'auto',
+                  transition: 'margin 300ms ease',
+                  marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
+                  bgcolor: "background.default" }}>
         <Typography variant="h4" gutterBottom>
           Dashboard
         </Typography>
@@ -65,20 +122,13 @@ const DashboardView: React.FC = () => {
           </Box>
         ) : (
           <>
+            {/* Metrics */}
             <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3 }}>
               {metrics.map((metric) => (
                 <Paper
                   key={metric.title}
                   elevation={3}
-                  sx={{
-                    p: 3,
-                    flex: "1 1 200px",
-                    minWidth: 200,
-                    borderRadius: 3,
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "center",
-                  }}
+                  sx={{ p: 3, flex: "1 1 200px", minWidth: 200, borderRadius: 1 }}
                 >
                   <Typography variant="subtitle1" color="text.secondary">
                     {metric.title}
@@ -90,14 +140,135 @@ const DashboardView: React.FC = () => {
               ))}
             </Box>
 
-            {/* Two Column Layout for Recent Orders and Top Items */}
+            {/* Chart with Tabs */}
+            <Box sx={{ mt: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                Sales vs Expenses
+              </Typography>
+              <Tabs
+                value={["daily", "weekly", "monthly", "yearly"].indexOf(chartRange)}
+                onChange={handleTabChange}
+                sx={{ mb: 2 }}
+              >
+                {tabLabels.map((label) => (
+                  <Tab key={label} label={label.charAt(0).toUpperCase() + label.slice(1)} />
+                ))}
+              </Tabs>
+
+              {chartData && chartData.sales.length > 0 && chartData.expenses.length > 0 ? (
+                <LineChart
+                  height={300}
+                  series={[
+                    { 
+                      data: chartData.expenses.map((p) => p.total), 
+                      label: "Expenses", 
+                      shape: 'diamond',
+                    },
+                    { 
+                      data: chartData.sales.map((p) => p.total), 
+                      label: "Sales", 
+                      shape: 'cross'
+                    },
+                  ]}
+                  xAxis={[{ data: chartData.sales.map((p) => p.key), scaleType: 'point' }]}
+                  yAxis={[{ label: "Amount (Rs.)" }]}
+                  margin={{ right: 24 }}
+                />
+              ) : (
+                <Typography color="text.secondary">No chart data available</Typography>
+              )}
+
+              {chartData && chartData.sales.length > 0 && chartData.expenses.length > 0 ? (
+                <LineChart
+                  height={300}
+                  series={[{ data: chartData.sales.map((p, i) => {
+                      const sale = Number(p.total) || 0;
+                      const expense = Number(chartData.expenses[i]?.total) || 0;
+                      return sale - expense; 
+                    }),
+                    label: "Profit",
+                    shape: 'diamond' 
+                  }]}
+                  xAxis={[
+                    { 
+                      data: chartData.sales.map((p) => p.key), 
+                      scaleType: "point" 
+                    }
+                  ]}
+                  yAxis={[{ label: "Profit (Rs.)" }]}
+                  margin={{ right: 24 }}
+                />
+              ) : (
+                <Typography color="text.secondary">No chart data available</Typography>
+              )}
+            </Box>
+
+            {/* Profit Metrics */}
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mt: 4 }}>
+              {[
+                {
+                  title: "Today's Profit",
+                  value:
+                    chartData && chartData.sales.length > 0 && chartData.expenses.length > 0
+                      ? `Rs. ${(Number(chartData.sales.at(-1)?.total) - Number(chartData.expenses.at(-1)?.total || 0)).toFixed(2)}`
+                      : "Rs. 0.00",
+                },
+                {
+                  title: "Weekly Profit",
+                  value: `Rs. ${(weeklySales - weeklyExpenses).toFixed(2)}`,
+                },
+                {
+                  title: "Monthly Profit",
+                  value: `Rs. ${(monthlySales - monthlyExpenses).toFixed(2)}`,
+                },
+                {
+                  title: "Yearly Profit",
+                  value: `Rs. ${(yearlySales - yearlyExpenses).toFixed(2)}`,
+                },
+              ].map((metric) => (
+                <Paper
+                  key={metric.title}
+                  elevation={3}
+                  sx={{ p: 3, flex: "1 1 200px", minWidth: 200, borderRadius: 1 }}
+                >
+                  <Typography variant="subtitle1" color="text.secondary">
+                    {metric.title}
+                  </Typography>
+                  <Typography variant="h5" sx={{ mt: 1 }}>
+                    {metric.value}
+                  </Typography>
+                </Paper>
+              ))}
+            </Box>
+
+
+
+            {/* Time-based stats */}
+            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mt: 3 }}>
+              {timeMetrics.map((metric) => (
+                <Paper
+                  key={metric.title}
+                  elevation={3}
+                  sx={{ p: 3, flex: "1 1 200px", minWidth: 200, borderRadius: 1 }}
+                >
+                  <Typography variant="subtitle1" color="text.secondary">
+                    {metric.title}
+                  </Typography>
+                  <Typography variant="body1" sx={{ mt: 1 }}>
+                    {metric.value}
+                  </Typography>
+                </Paper>
+              ))}
+            </Box>
+
+            {/* Recent Orders & Top Items */}
             <Box sx={{ mt: 4, display: "flex", gap: 3, flexWrap: "wrap" }}>
               {/* Recent Orders */}
               <Box sx={{ flex: "1 1 400px", minWidth: 300 }}>
                 <Typography variant="h6" gutterBottom>
                   Recent Orders
                 </Typography>
-                <Paper elevation={3} sx={{ p: 3, borderRadius: 3 }}>
+                <Paper elevation={3} sx={{ p: 3, borderRadius: 1 }}>
                   {recentOrders.length === 0 ? (
                     <Typography color="text.secondary">
                       No recent orders to display.
@@ -111,7 +282,7 @@ const DashboardView: React.FC = () => {
                             p: 2,
                             border: "1px solid",
                             borderColor: "divider",
-                            borderRadius: 2,
+                            borderRadius: 1,
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
@@ -122,7 +293,8 @@ const DashboardView: React.FC = () => {
                               {order.orderNumber}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              {order.user?.name} • {new Date(order.createdAt).toLocaleDateString()}
+                              {order.user?.name} •{" "}
+                              {new Date(order.createdAt).toLocaleDateString()}
                             </Typography>
                           </Box>
                           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
@@ -147,11 +319,9 @@ const DashboardView: React.FC = () => {
                 <Typography variant="h6" gutterBottom>
                   Top Items by Price
                 </Typography>
-                <Paper elevation={3} sx={{ p: 3, borderRadius: 3 }}>
+                <Paper elevation={3} sx={{ p: 3, borderRadius: 1 }}>
                   {topItems.length === 0 ? (
-                    <Typography color="text.secondary">
-                      No items to display.
-                    </Typography>
+                    <Typography color="text.secondary">No items to display.</Typography>
                   ) : (
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                       {topItems.map((item, index) => (
@@ -161,24 +331,18 @@ const DashboardView: React.FC = () => {
                             p: 2,
                             border: "1px solid",
                             borderColor: "divider",
-                            borderRadius: 2,
+                            borderRadius: 1,
                             display: "flex",
                             justifyContent: "space-between",
                             alignItems: "center",
                           }}
                         >
                           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                            <Typography
-                              variant="h6"
-                              color="primary"
-                              sx={{ minWidth: 30 }}
-                            >
+                            <Typography variant="h6" color="primary" sx={{ minWidth: 30 }}>
                               #{index + 1}
                             </Typography>
                             <Box>
-                              <Typography variant="subtitle1">
-                                {item.name}
-                              </Typography>
+                              <Typography variant="subtitle1">{item.name}</Typography>
                               <Typography variant="body2" color="text.secondary">
                                 Item ID: {item.id}
                               </Typography>

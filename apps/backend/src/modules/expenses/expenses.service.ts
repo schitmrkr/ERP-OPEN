@@ -7,19 +7,50 @@ import { CreateExpenseDto, UpdateExpenseDto } from './dto';
 export class ExpensesService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createExpense(dto: CreateExpenseDto, organizationId: number, userId: number): Promise<Expense> {
-    if (dto.expenseNature === ExpenseNature.DIRECT && !dto.type) {
-      throw new BadRequestException('Type is required for DIRECT expenses');
+  private readonly DIRECT_TYPES: ExpenseType[] = [
+    ExpenseType.INGREDIENT,
+    ExpenseType.PACKAGING,
+    ExpenseType.UTILITY,
+    ExpenseType.TRANSPORT,
+  ];
+
+  private readonly INDIRECT_TYPES: ExpenseType[] = [
+    ExpenseType.MAINTENANCE,
+    ExpenseType.RENT,
+    ExpenseType.SALARY,
+    ExpenseType.OTHER,
+  ];
+
+  private validateTypeForNature(nature: ExpenseNature, type: ExpenseType | null | undefined) {
+    if (!type) {
+      throw new BadRequestException(
+        nature === ExpenseNature.DIRECT
+          ? 'Type is required for DIRECT expenses'
+          : 'Type is required for INDIRECT expenses',
+      );
     }
 
-    const type = dto.expenseNature === ExpenseNature.INDIRECT ? null : dto.type;
+    if (nature === ExpenseNature.DIRECT && !this.DIRECT_TYPES.includes(type)) {
+      throw new BadRequestException('Selected type is not allowed for DIRECT expenses');
+    }
+
+    if (nature === ExpenseNature.INDIRECT && !this.INDIRECT_TYPES.includes(type)) {
+      throw new BadRequestException('Selected type is not allowed for INDIRECT expenses');
+    }
+  }
+
+  async createExpense(dto: CreateExpenseDto, organizationId: number, userId: number): Promise<Expense> {
+    const nature = dto.expenseNature ?? ExpenseNature.DIRECT;
+    const type = dto.type ?? null;
+
+    this.validateTypeForNature(nature, type);
 
     return this.prisma.expense.create({
       data: {
         description: dto.description,
         amount: dto.amount,
         type,
-        expenseNature: dto.expenseNature ?? ExpenseNature.DIRECT,
+        expenseNature: nature,
         itemId: dto.itemId ?? null,
         userId,
         organizationId,
@@ -80,17 +111,13 @@ export class ExpensesService {
     const newNature = dto.expenseNature ?? existing.expenseNature;
     const newType = dto.type ?? existing.type;
 
-    if (newNature === ExpenseNature.DIRECT && !newType) {
-      throw new BadRequestException('Type is required for DIRECT expenses');
-    }
-
-    const type = newNature === ExpenseNature.INDIRECT ? null : newType;
+    this.validateTypeForNature(newNature, newType as ExpenseType | null | undefined);
 
     const data: any = {
       description: dto.description ?? existing.description,
       amount: dto.amount ?? existing.amount,
       expenseNature: newNature,
-      type,
+      type: newType,
       itemId: dto.itemId !== undefined ? dto.itemId : existing.itemId,
       userId: userId !== undefined ? userId : existing.userId,
     };

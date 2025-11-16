@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { UserRole, type User } from '../models/user';
+import { type User } from '../models/user';
 
 export const useAuth = () => {
   const [user, setUser] = useState<User | null>(null);

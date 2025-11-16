@@ -8,6 +8,7 @@ export const useItemsViewModel = () => {
   const [name, setName] = useState("");
   const [sellingPrice, setSellingPrice] = useState(0);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [notification, setNotification] = useState<{ type: "success" | "error" | "info"; message: string } | null>(null);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
@@ -33,7 +34,10 @@ export const useItemsViewModel = () => {
   };
 
   const save = async () => {
-    if (!name || sellingPrice <= 0) return alert("Please provide valid name and price");
+    if (!name || sellingPrice <= 0) {
+      setNotification({ type: "error", message: "Please provide valid name and price" });
+      return;
+    }
     setLoading(true);
     try {
       const payload = { name, sellingPrice };
@@ -55,6 +59,7 @@ export const useItemsViewModel = () => {
       setName("");
       setSellingPrice(0);
       setEditingId(null);
+      setNotification({ type: "success", message: editingId ? "Item updated successfully" : "Item created successfully" });
       fetchItems();
     } catch (err: any) {
       let msg = "Error saving item";
@@ -63,7 +68,7 @@ export const useItemsViewModel = () => {
       } else {
         msg = err.message || msg;
       }
-      alert(msg);
+      setNotification({ type: "error", message: msg });
     } finally {
       setLoading(false);
     }
@@ -82,6 +87,7 @@ export const useItemsViewModel = () => {
       await axios.delete(`${BACKEND_URL}/api/items/${id}`, {
         headers: getAuthHeaders(),
       });
+      setNotification({ type: "success", message: "Item deleted successfully" });
       fetchItems();
     } catch (err: any) {
       let msg = "Error deleting item";
@@ -90,7 +96,7 @@ export const useItemsViewModel = () => {
       } else {
         msg = err.message || msg;
       }
-      alert(msg);
+      setNotification({ type: "error", message: msg });
     } finally {
       setLoading(false);
     }
@@ -111,5 +117,7 @@ export const useItemsViewModel = () => {
     save,
     editItem,
     remove,
+    notification,
+    setNotification,
   };
 };

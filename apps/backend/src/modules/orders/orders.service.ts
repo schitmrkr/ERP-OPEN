@@ -137,14 +137,62 @@ export class OrdersService {
   }
 
   async updateOrder(id: number, dto: UpdateOrderDto): Promise<Order> {
-    await this.getOrderById(id); // ensure exists
-
-    const data: any = {};
-    if (dto.status !== undefined) data.status = dto.status;
-
-    await this.prisma.order.update({
+    const existingOrder = await this.prisma.order.findUnique({
       where: { id },
-      data,
+      include: { orderItems: true },
+    });
+
+    if (!existingOrder) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Only allow editing items while order is PENDING. Status can be changed separately.
+    if (dto.orderItems && dto.orderItems.length > 0 && existingOrder.status !== OrderStatus.PENDING) {
+      throw new BadRequestException('Only pending orders can be edited');
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      const data: any = {};
+
+      if (dto.status !== undefined) {
+        data.status = dto.status;
+      }
+
+      if (dto.orderItems && dto.orderItems.length > 0) {
+        // Validate all items belong to the same organization
+        const itemIds = dto.orderItems.map((oi) => oi.itemId);
+        const items = await tx.item.findMany({
+          where: { id: { in: itemIds } },
+        });
+
+        if (items.length !== itemIds.length) {
+          throw new NotFoundException('One or more items not found');
+        }
+
+        const invalidItems = items.filter((item) => item.organizationId !== existingOrder.organizationId);
+        if (invalidItems.length > 0) {
+          throw new BadRequestException('All items must belong to the same organization');
+        }
+
+        const totalAmount = dto.orderItems.reduce((sum, oi) => sum + oi.quantity * oi.price, 0);
+        data.totalAmount = totalAmount;
+
+        // Replace existing order items with the new set
+        await tx.orderItem.deleteMany({ where: { orderId: id } });
+        await tx.orderItem.createMany({
+          data: dto.orderItems.map((oi) => ({
+            orderId: id,
+            itemId: oi.itemId,
+            quantity: oi.quantity,
+            price: oi.price,
+          })),
+        });
+      }
+
+      await tx.order.update({
+        where: { id },
+        data,
+      });
     });
 
     return this.getOrderById(id);

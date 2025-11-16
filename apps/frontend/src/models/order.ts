@@ -44,10 +44,11 @@ export interface CreateOrderItemDto {
 
 export interface CreateOrderDto {
   orderNumber: string;
+  userId: number;
   orderItems: CreateOrderItemDto[];
 }
 
 export interface UpdateOrderDto {
   status?: OrderStatus;
+  orderItems?: CreateOrderItemDto[];
 }
-

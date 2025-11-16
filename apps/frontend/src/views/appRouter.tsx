@@ -5,7 +5,6 @@ import LoginView from "./routes/auth/loginView";
 
 import DashboardView from "./routes/dashboard/dashboardView";
 import ItemsView from "./routes/items/itemsView";
-import OrganizationsView from "./routes/organizations/organizationsView";
 import UsersView from "./routes/users/usersView";
 import ExpensesView from "./routes/expenses/expensesView";
 import OrdersView from "./routes/orders/ordersView";
@@ -24,11 +23,6 @@ function AppRouter() {
         <Route path="/items" element={
             <ProtectedRoute>
               <ItemsView />
-            </ProtectedRoute>
-        } />
-        <Route path="/organizations" element={
-            <ProtectedRoute>
-              <OrganizationsView />
             </ProtectedRoute>
         } />
         <Route path="/users" element={

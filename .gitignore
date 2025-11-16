@@ -4,3 +4,5 @@
 *.pem
 dist/
 node_modules/
+
+WARP.md

@@ -19,6 +19,9 @@ import { useUsersViewModel } from "../../../viewmodels/users/useUsersViewModel";
 import { UserRole } from "../../../models/user";
 import { useAuth } from "../../../hooks/useAuth";
 import { canModifyUsers } from "../../../utils/roleUtils";
+import { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
+
+import { useUIStore } from "../../../stores/uiStore";
 
 const UsersView: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -39,18 +42,21 @@ const UsersView: React.FC = () => {
     editUser
   } = useUsersViewModel();
 
-  const [isCollapsed, setIsCollapsed] = useState(true);
   const canModify = canModifyUsers(currentUser?.role);
 
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
+  const isCollapsed = isSidebarCollapsed;
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
+      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
 
-      <Box sx={{ flex: 1, p: 4, bgcolor: "background.default" }}>
+      <Box sx={{  flex: 1,
+                  p: 4, 
+                  overflowY: 'auto',
+                  transition: 'margin 300ms ease',
+                  marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
+                  bgcolor: "background.default" }}>
         <Typography variant="h4" gutterBottom>
           Users
         </Typography>
@@ -63,7 +69,7 @@ const UsersView: React.FC = () => {
 
         {/* Create/Edit Form - Only visible to OWNER/ADMIN */}
         {canModify && (
-          <Paper sx={{ p: 3, mb: 4, borderRadius: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+          <Paper sx={{ p: 3, mb: 4, borderRadius: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           <Box sx={{ display: "flex", gap: 2 }}>
             <TextField
               label="Name"
@@ -137,7 +143,7 @@ const UsersView: React.FC = () => {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              borderRadius: 3,
+              borderRadius: 1,
             }}
           >
             <Box>

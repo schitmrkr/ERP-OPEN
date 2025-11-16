@@ -11,6 +11,9 @@ import {
 import { Edit2, Trash2 } from "lucide-react";
 import ERPSidebar from "../../components/sidebar/ERPSidebar";
 import { useOrganizationsViewModel } from "../../../viewmodels/organizations/useOrganizationsViewModel";
+import { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
+
+import { useUIStore } from "../../../stores/uiStore";
 
 const OrganizationsView: React.FC = () => {
   const { 
@@ -24,17 +27,19 @@ const OrganizationsView: React.FC = () => {
     editOrganization
   } = useOrganizationsViewModel();
 
-  const [isCollapsed, setIsCollapsed] = useState(true);
-
-  const toggleCollapse = () => {
-    setIsCollapsed(!isCollapsed);
-  };
+  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
+  const isCollapsed = isSidebarCollapsed;
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
-      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleCollapse} />
+      <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
 
-      <Box sx={{ flex: 1, p: 4, bgcolor: "background.default" }}>
+      <Box sx={{  flex: 1,
+                  p: 4, 
+                  overflowY: 'auto',
+                  transition: 'margin 300ms ease',
+                  marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
+                  bgcolor: "background.default" }}>
         <Typography variant="h4" gutterBottom>
           Organizations
         </Typography>
