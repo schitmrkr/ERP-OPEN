@@ -72,27 +72,6 @@ const DashboardView: React.FC = () => {
     { title: "Avg Item Price", value: formatCurrency(averageItemPrice) },
   ];
 
-  const timeMetrics = [
-    {
-      title: "Weekly Stats",
-      value: `Orders: ${weeklyOrders}, Sales: ${formatCurrency(
-        weeklySales
-      )}, Expenses: ${formatCurrency(weeklyExpenses)}`,
-    },
-    {
-      title: "Monthly Stats",
-      value: `Orders: ${monthlyOrders}, Sales: ${formatCurrency(
-        monthlySales
-      )}, Expenses: ${formatCurrency(monthlyExpenses)}`,
-    },
-    {
-      title: "Yearly Stats",
-      value: `Orders: ${yearlyOrders}, Sales: ${formatCurrency(
-        yearlySales
-      )}, Expenses: ${formatCurrency(yearlyExpenses)}`,
-    },
-  ];
-
   useEffect(() => {
     fetchChartData(chartRange);
   }, [chartRange]);
@@ -235,26 +214,6 @@ const DashboardView: React.FC = () => {
                     {metric.title}
                   </Typography>
                   <Typography variant="h5" sx={{ mt: 1 }}>
-                    {metric.value}
-                  </Typography>
-                </Paper>
-              ))}
-            </Box>
-
-
-
-            {/* Time-based stats */}
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 3, mt: 3 }}>
-              {timeMetrics.map((metric) => (
-                <Paper
-                  key={metric.title}
-                  elevation={3}
-                  sx={{ p: 3, flex: "1 1 200px", minWidth: 200, borderRadius: 1 }}
-                >
-                  <Typography variant="subtitle1" color="text.secondary">
-                    {metric.title}
-                  </Typography>
-                  <Typography variant="body1" sx={{ mt: 1 }}>
                     {metric.value}
                   </Typography>
                 </Paper>
