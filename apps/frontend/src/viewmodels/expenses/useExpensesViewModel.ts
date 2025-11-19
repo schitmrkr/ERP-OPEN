@@ -44,6 +44,9 @@ export const useExpensesViewModel = () => {
         headers: getAuthHeaders(),
       });
       setItems(res.data);
+      if (res.data.length > 0 && !editingId) {
+        setItemId(res.data[0].id);
+      }
     } catch (err: any) {
       console.error("Failed to fetch items");
     }
