@@ -1,16 +1,16 @@
 import { Controller, 
-         Get, 
-         Post, 
-         Param, 
-         Delete, 
-         Body, 
-         Patch, 
-         ParseIntPipe, 
-         UseGuards, 
-         Request, 
-         NotFoundException, 
-         Logger 
-        } from '@nestjs/common';
+  Get, 
+  Post, 
+  Param, 
+  Delete, 
+  Body, 
+  Patch, 
+  ParseIntPipe, 
+  UseGuards, 
+  Request, 
+  NotFoundException, 
+  Logger 
+ } from '@nestjs/common';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { Order } from '@prisma/client';
@@ -20,112 +20,93 @@ import { PrismaService } from '../../shared/prisma/prisma.service';
 @UseGuards(JwtAuthGuard)
 @Controller('orders')
 export class OrdersController {
-  private readonly logger = new Logger(OrdersController.name);
-  
-  constructor(
-    private readonly ordersService: OrdersService,
-    private readonly prisma: PrismaService
-  ) {}
+private readonly logger = new Logger(OrdersController.name);
 
-  @Post()
-  async createOrder(@Body() dto: CreateOrderDto, @Request() req: any): Promise<Order> {
-    const userId = req.user?.userId;
-    this.logger.log(`Creating order for user ${userId}`);
-    if (!userId) throw new NotFoundException('User not found in token');
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-    
-    // Override userId in DTO with authenticated user's ID for security
-    dto.userId = user.id;
+constructor(
+private readonly ordersService: OrdersService,
+private readonly prisma: PrismaService
+) {}
 
-    this.logger.log(`Order data: ${JSON.stringify(dto)}`);
-    
-    return this.ordersService.createOrder(dto, user.organizationId);
-  }
+/** Helper to fetch user and verify org-level access */
+private async getUserAndVerifyOrg(req: any): Promise<{ id: number; organizationId: number }> {
+const userId = req.user?.userId;
+if (!userId) throw new NotFoundException('User not found in token');
 
-  @Get()
-  async getAllOrders(@Request() req: any): Promise<Order[]> {
-    const userId = req.user?.userId;
-    if (!userId) throw new NotFoundException('User not found in token');
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-    
-    return this.ordersService.getOrdersByOrganization(user.organizationId);
-  }
+const user = await this.prisma.user.findUnique({ where: { id: userId } });
+if (!user) throw new NotFoundException('User not found');
 
-  @Get(':id')
-  async getOrderById(@Param('id', ParseIntPipe) id: number, @Request() req: any): Promise<Order> {
-    const userId = req.user?.userId;
-    if (!userId) throw new NotFoundException('User not found in token');
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-    
-    const order = await this.ordersService.getOrderById(id);
-    
-    // Users can only see orders from their organization
-    if (order.organizationId !== user.organizationId) {
-      throw new NotFoundException('Order not found');
-    }
-    
-    return order;
-  }
+return { id: user.id, organizationId: user.organizationId };
+}
 
-  @Patch(':id')
-  async updateOrder(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateOrderDto,
-    @Request() req: any,
-  ): Promise<Order> {
-    const userId = req.user?.userId;
-    if (!userId) throw new NotFoundException('User not found in token');
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-    
-    const order = await this.ordersService.getOrderById(id);
-    
-    // Users can only update orders from their organization
-    if (order.organizationId !== user.organizationId) {
-      throw new NotFoundException('Order not found');
-    }
-    
-    return this.ordersService.updateOrder(id, dto);
-  }
+@Post()
+async createOrder(@Body() dto: CreateOrderDto, @Request() req: any): Promise<Order> {
+const { id: userId, organizationId } = await this.getUserAndVerifyOrg(req);
 
-  @Patch(':id/status')
-  async updateOrderStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() dto: UpdateOrderDto,
-    @Request() req: any,
-  ): Promise<Order> {
-    const userId = req.user?.userId;
-    if (!userId) throw new NotFoundException('User not found in token');
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
+// Force the order userId to authenticated user
+dto.userId = userId;
 
-    const order = await this.ordersService.getOrderById(id);
+return this.ordersService.createOrder(dto, organizationId);
+}
 
-    // Users can only update orders from their organization
-    if (order.organizationId !== user.organizationId) {
-      throw new NotFoundException('Order not found');
-    }
+@Get()
+async getAllOrders(@Request() req: any): Promise<Order[]> {
+const { organizationId } = await this.getUserAndVerifyOrg(req);
+return this.ordersService.getOrdersByOrganization(organizationId);
+}
 
-    return this.ordersService.updateOrder(id, dto);
-  }
+@Get(':id')
+async getOrderById(@Param('id', ParseIntPipe) id: number, @Request() req: any): Promise<Order> {
+const { organizationId } = await this.getUserAndVerifyOrg(req);
+const order = await this.ordersService.getOrderById(id);
 
-  @Delete(':id')
-  async deleteOrder(@Param('id', ParseIntPipe) id: number, @Request() req: any): Promise<Order> {
-    const userId = req.user?.userId;
-    if (!userId) throw new NotFoundException('User not found in token');
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
-    if (!user) throw new NotFoundException('User not found');
-    
-    const order = await this.ordersService.getOrderById(id);
-    
-    // Users can only delete orders from their organization
-    if (order.organizationId !== user.organizationId) {
-      throw new NotFoundException('Order not found');
-    }
-    
-    return this.ordersService.deleteOrder(id);
-  }
+if (order.organizationId !== organizationId) {
+throw new NotFoundException('Order not found');
+}
+
+return order;
+}
+
+@Patch(':id')
+async updateOrder(
+@Param('id', ParseIntPipe) id: number,
+@Body() dto: UpdateOrderDto,
+@Request() req: any,
+): Promise<Order> {
+const { organizationId } = await this.getUserAndVerifyOrg(req);
+const order = await this.ordersService.getOrderById(id);
+
+if (order.organizationId !== organizationId) {
+throw new NotFoundException('Order not found');
+}
+
+return this.ordersService.updateOrder(id, dto);
+}
+
+@Patch(':id/status')
+async updateOrderStatus(
+@Param('id', ParseIntPipe) id: number,
+@Body() dto: UpdateOrderDto,
+@Request() req: any,
+): Promise<Order> {
+const { organizationId } = await this.getUserAndVerifyOrg(req);
+const order = await this.ordersService.getOrderById(id);
+
+if (order.organizationId !== organizationId) {
+throw new NotFoundException('Order not found');
+}
+
+return this.ordersService.updateOrder(id, dto);
+}
+
+@Delete(':id')
+async deleteOrder(@Param('id', ParseIntPipe) id: number, @Request() req: any): Promise<Order> {
+const { organizationId } = await this.getUserAndVerifyOrg(req);
+const order = await this.ordersService.getOrderById(id);
+
+if (order.organizationId !== organizationId) {
+throw new NotFoundException('Order not found');
+}
+
+return this.ordersService.deleteOrder(id);
+}
 }

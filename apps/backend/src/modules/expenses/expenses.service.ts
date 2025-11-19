@@ -30,6 +30,9 @@ export class ExpensesService {
       );
     }
 
+    // WASTAGE is allowed in BOTH DIRECT and INDIRECT
+    if (type === ExpenseType.WASTAGE) return;
+
     if (nature === ExpenseNature.DIRECT && !this.DIRECT_TYPES.includes(type)) {
       throw new BadRequestException('Selected type is not allowed for DIRECT expenses');
     }

@@ -6,6 +6,9 @@ export class CreateItemsDto {
 
   @IsNotEmpty()
   sellingPrice!: number;
+
+  @IsNotEmpty()
+  inventoryQty!: number;
 }
 
 

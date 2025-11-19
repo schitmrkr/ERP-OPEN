@@ -15,9 +15,9 @@ export class UpdateExpenseDto {
   @IsEnum(ExpenseNature)
   expenseNature?: ExpenseNature;
 
-  @ValidateIf(o => o.expenseNature === ExpenseNature.DIRECT)
+  @IsOptional()
   @IsEnum(ExpenseType)
-  type?: ExpenseType; // required only if DIRECT
+  type?: ExpenseType; 
 
   @IsInt()
   @IsOptional()

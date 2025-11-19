@@ -8,4 +8,8 @@ export class UpdateItemsDto {
   @IsOptional()
   @IsNumber()
   sellingPrice?: number;
+
+  @IsOptional()
+  @IsNumber()
+  inventoryQty!: number;
 }

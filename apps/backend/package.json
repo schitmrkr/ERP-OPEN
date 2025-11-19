@@ -6,7 +6,7 @@
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:prod": "node dist/main.js",
-    "build": "nest build",
+    "build": "npx nest build",
     "lint": "eslint 'src/**/*.ts' --fix",
     "format": "prettier --write 'src/**/*.ts'",
     "db:generate": "npx prisma generate",
@@ -26,7 +26,8 @@
     "@types/passport-jwt": "^4.0.1",
     "prisma": "^6.19.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "@nestjs/cli": "^10.0.0"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.8",

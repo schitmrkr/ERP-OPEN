@@ -9,13 +9,13 @@ export class CreateExpenseDto {
   @Min(0)
   amount!: number;
 
-  @IsOptional()
+  @IsNotEmpty()
   @IsEnum(ExpenseNature)
-  expenseNature?: ExpenseNature; // default to DIRECT
+  expenseNature!: ExpenseNature;
 
-  @ValidateIf(o => o.expenseNature === ExpenseNature.DIRECT)
+  @IsNotEmpty()
   @IsEnum(ExpenseType)
-  type?: ExpenseType; // required only if DIRECT
+  type!: ExpenseType; 
 
   @IsOptional()
   @IsInt()
