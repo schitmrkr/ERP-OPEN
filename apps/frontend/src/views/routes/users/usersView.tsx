@@ -20,7 +20,6 @@ import { type UserRole } from "../../../models/user";
 import { useAuth } from "../../../hooks/useAuth";
 import { canModifyUsers } from "../../../utils/roleUtils";
 import { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
-
 import { useUIStore } from "../../../stores/uiStore";
 
 const UsersView: React.FC = () => {
@@ -51,12 +50,16 @@ const UsersView: React.FC = () => {
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
 
-      <Box sx={{  flex: 1,
-                  p: 4, 
-                  overflowY: 'auto',
-                  transition: 'margin 300ms ease',
-                  marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
-                  bgcolor: "background.default" }}>
+      <Box
+        sx={{
+          flex: 1,
+          p: { xs: 2, sm: 4 },
+          overflowY: 'auto',
+          transition: 'margin 300ms ease',
+          marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
+          bgcolor: "background.default",
+        }}
+      >
         <Typography variant="h4" gutterBottom>
           Users
         </Typography>
@@ -70,67 +73,77 @@ const UsersView: React.FC = () => {
         {/* Create/Edit Form - Only visible to OWNER/ADMIN */}
         {canModify && (
           <Paper sx={{ p: 3, mb: 4, borderRadius: 1, display: "flex", flexDirection: "column", gap: 2 }}>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <TextField
-              label="Name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              sx={{ flex: 1 }}
-            />
-            <TextField
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              sx={{ flex: 1 }}
-            />
-          </Box>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <TextField
-              label={editingId ? "New Password (optional)" : "Password"}
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              sx={{ flex: 1 }}
-            />
-            <FormControl sx={{ flex: 1 }}>
-              <InputLabel>Role</InputLabel>
-              <Select
-                value={role}
-                onChange={(e) => setRole(e.target.value as UserRole)}
-                label="Role"
-              >
-                <MenuItem value={"OWNER"}>Owner</MenuItem>
-                <MenuItem value={"ADMIN"}>Admin</MenuItem>
-                <MenuItem value={"MANAGER>"}>Manager</MenuItem>
-                <MenuItem value={"CASHIER"}>Cashier</MenuItem>
-              </Select>
-            </FormControl>
-          </Box>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <Button
-              variant="contained"
-              onClick={save}
-              disabled={loading}
-            >
-              {loading ? <CircularProgress size={24} /> : editingId ? "Update" : "Create"}
-            </Button>
-            {editingId && (
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+              <TextField
+                label="Name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="Email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                sx={{ flex: 1 }}
+              />
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+              <TextField
+                label={editingId ? "New Password (optional)" : "Password"}
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                sx={{ flex: 1 }}
+              />
+              <FormControl sx={{ flex: 1 }}>
+                <InputLabel>Role</InputLabel>
+                <Select
+                  value={role}
+                  onChange={(e) => setRole(e.target.value as UserRole)}
+                  label="Role"
+                >
+                  <MenuItem value={"OWNER"}>Owner</MenuItem>
+                  <MenuItem value={"ADMIN"}>Admin</MenuItem>
+                  <MenuItem value={"MANAGER"}>Manager</MenuItem>
+                  <MenuItem value={"CASHIER"}>Cashier</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
               <Button
-                variant="outlined"
-                onClick={() => {
-                  setName("");
-                  setEmail("");
-                  setPassword("");
-                  setRole("CASHIER");
-                  editUser({ id: 0, name: "", email: "", role: "CASHIER", organizationId: 0, createdAt: "", updatedAt: "" });
-                }}
+                variant="contained"
+                onClick={save}
+                disabled={loading}
+                sx={{ width: { xs: "100%", sm: "auto" } }}
               >
-                Cancel
+                {loading ? <CircularProgress size={24} /> : editingId ? "Update" : "Create"}
               </Button>
-            )}
-          </Box>
-        </Paper>
+              {editingId && (
+                <Button
+                  variant="outlined"
+                  sx={{ width: { xs: "100%", sm: "auto" } }}
+                  onClick={() => {
+                    setName("");
+                    setEmail("");
+                    setPassword("");
+                    setRole("CASHIER");
+                    editUser({
+                      id: 0,
+                      name: "",
+                      email: "",
+                      role: "CASHIER",
+                      organizationId: 0,
+                      createdAt: "",
+                      updatedAt: ""
+                    });
+                  }}
+                >
+                  Cancel
+                </Button>
+              )}
+            </Box>
+          </Paper>
         )}
 
         {/* Users List */}
@@ -141,29 +154,28 @@ const UsersView: React.FC = () => {
               p: 2,
               mb: 2,
               display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: { xs: "flex-start", sm: "center" },
               borderRadius: 1,
             }}
           >
-            <Box>
+            <Box sx={{ mb: { xs: 1, sm: 0 } }}>
               <Typography variant="subtitle1">{user.name}</Typography>
               <Typography variant="body2" color="text.secondary">
                 {user.email} • {user.role}
               </Typography>
             </Box>
-            <Box sx={{ display: "flex", gap: 1 }}>
-              {canModify && (
-                <>
-                  <IconButton onClick={() => editUser(user)}>
-                    <Edit2 size={20} />
-                  </IconButton>
-                  <IconButton onClick={() => remove(user.id)}>
-                    <Trash2 size={20} />
-                  </IconButton>
-                </>
-              )}
-            </Box>
+            {canModify && (
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <IconButton onClick={() => editUser(user)}>
+                  <Edit2 size={20} />
+                </IconButton>
+                <IconButton onClick={() => remove(user.id)}>
+                  <Trash2 size={20} />
+                </IconButton>
+              </Box>
+            )}
           </Paper>
         ))}
 
@@ -176,4 +188,3 @@ const UsersView: React.FC = () => {
 };
 
 export default UsersView;
-

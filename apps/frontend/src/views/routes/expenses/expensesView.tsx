@@ -24,7 +24,7 @@ import { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar
 import { useUIStore } from "../../../stores/uiStore";
 
 const ExpensesView: React.FC = () => {
-  const { 
+  const {
     expenses,
     items,
     loading,
@@ -48,7 +48,6 @@ const ExpensesView: React.FC = () => {
 
   const [activeNatureTab, setActiveNatureTab] = useState<ExpenseNature | 'ALL'>('ALL');
 
-  // Pagination & date filtering
   const [expensesPage, setExpensesPage] = useState(1);
   const expensesPerPage = 10;
   const [expenseDateFilterMode, setExpenseDateFilterMode] = useState<'ALL' | 'DAILY' | 'MONTHLY'>('ALL');
@@ -72,7 +71,6 @@ const ExpensesView: React.FC = () => {
       });
     }
 
-    // MONTHLY
     return expensesToFilter.filter((expense) => {
       const d = new Date(expense.createdAt);
       return (
@@ -96,12 +94,16 @@ const ExpensesView: React.FC = () => {
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
 
-      <Box sx={{  flex: 1,
-                  p: 4, 
-                  overflowY: 'auto',
-                  transition: 'margin 300ms ease',
-                  marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
-                  bgcolor: "background.default" }}>
+      <Box
+        sx={{
+          flex: 1,
+          p: { xs: 2, sm: 4 },
+          overflowY: 'auto',
+          transition: 'margin 300ms ease',
+          marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
+          bgcolor: "background.default",
+        }}
+      >
         <Typography variant="h4" gutterBottom>
           Expenses
         </Typography>
@@ -115,33 +117,31 @@ const ExpensesView: React.FC = () => {
         )}
 
         {/* Create/Edit Form */}
-        <Paper sx={{ p: 3, mb: 4, borderRadius: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+        <Paper sx={{ p: 2, mb: 4, borderRadius: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             fullWidth
           />
-          <Box sx={{ display: "flex", gap: 2 }}>
+
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
             <TextField
               label="Amount"
               type="number"
               value={amount}
               onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-              sx={{ flex: 1 }}
+              sx={{ flex: { xs: "100%", sm: 1 } }}
             />
-            <FormControl sx={{ flex: 1 }}>
+
+            <FormControl sx={{ flex: { xs: "100%", sm: 1 } }}>
               <InputLabel>Nature</InputLabel>
               <Select
                 value={expenseNature}
                 onChange={(e) => {
                   const newNature = e.target.value as ExpenseNature;
                   setExpenseNature(newNature);
-
-                  // When switching to INDIRECT, clear item because it is not relevant
-                  if (newNature === ExpenseNature.INDIRECT) {
-                    setItemId(null);
-                  }
+                  if (newNature === ExpenseNature.INDIRECT) setItemId(null);
                 }}
                 label="Nature"
               >
@@ -150,75 +150,29 @@ const ExpensesView: React.FC = () => {
               </Select>
             </FormControl>
           </Box>
-          <Box sx={{ display: "flex", gap: 2 }}>
-            <FormControl
-              sx={{ flex: 1 }}
-              required
-            >
+
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <FormControl sx={{ flex: { xs: "100%", sm: 1 } }} required>
               <InputLabel>Type</InputLabel>
               <Select
                 value={type}
                 onChange={(e) => setType(e.target.value as ExpenseType)}
                 label="Type"
               >
-                <MenuItem
-                  value={ExpenseType.WASTAGE}
-                >
-                  Wastage
-                </MenuItem>
-                <MenuItem
-                  value={ExpenseType.INGREDIENT}
-                  disabled={expenseNature === ExpenseNature.INDIRECT}
-                >
-                  Ingredient
-                </MenuItem>
-                <MenuItem
-                  value={ExpenseType.PACKAGING}
-                  disabled={expenseNature === ExpenseNature.INDIRECT}
-                >
-                  Packaging
-                </MenuItem>
-                <MenuItem
-                  value={ExpenseType.UTILITY}
-                  disabled={expenseNature === ExpenseNature.INDIRECT}
-                >
-                  Utility
-                </MenuItem>
-                <MenuItem
-                  value={ExpenseType.TRANSPORT}
-                  disabled={expenseNature === ExpenseNature.INDIRECT}
-                >
-                  Transport
-                </MenuItem>
-
-                <MenuItem
-                  value={ExpenseType.MAINTENANCE}
-                  disabled={expenseNature === ExpenseNature.DIRECT}
-                >
-                  Maintenance
-                </MenuItem>
-                <MenuItem
-                  value={ExpenseType.RENT}
-                  disabled={expenseNature === ExpenseNature.DIRECT}
-                >
-                  Rent
-                </MenuItem>
-                <MenuItem
-                  value={ExpenseType.SALARY}
-                  disabled={expenseNature === ExpenseNature.DIRECT}
-                >
-                  Salary
-                </MenuItem>
-                <MenuItem
-                  value={ExpenseType.OTHER}
-                  disabled={expenseNature === ExpenseNature.DIRECT}
-                >
-                  Other
-                </MenuItem>
+                <MenuItem value={ExpenseType.WASTAGE}>Wastage</MenuItem>
+                <MenuItem value={ExpenseType.INGREDIENT} disabled={expenseNature === ExpenseNature.INDIRECT}>Ingredient</MenuItem>
+                <MenuItem value={ExpenseType.PACKAGING} disabled={expenseNature === ExpenseNature.INDIRECT}>Packaging</MenuItem>
+                <MenuItem value={ExpenseType.UTILITY} disabled={expenseNature === ExpenseNature.INDIRECT}>Utility</MenuItem>
+                <MenuItem value={ExpenseType.TRANSPORT} disabled={expenseNature === ExpenseNature.INDIRECT}>Transport</MenuItem>
+                <MenuItem value={ExpenseType.MAINTENANCE} disabled={expenseNature === ExpenseNature.DIRECT}>Maintenance</MenuItem>
+                <MenuItem value={ExpenseType.RENT} disabled={expenseNature === ExpenseNature.DIRECT}>Rent</MenuItem>
+                <MenuItem value={ExpenseType.SALARY} disabled={expenseNature === ExpenseNature.DIRECT}>Salary</MenuItem>
+                <MenuItem value={ExpenseType.OTHER} disabled={expenseNature === ExpenseNature.DIRECT}>Other</MenuItem>
               </Select>
             </FormControl>
+
             <FormControl
-              sx={{ flex: 1 }}
+              sx={{ flex: { xs: "100%", sm: 1 } }}
               disabled={expenseNature === ExpenseNature.INDIRECT}
               required={expenseNature === ExpenseNature.DIRECT}
               error={expenseNature === ExpenseNature.DIRECT && !itemId}
@@ -229,9 +183,6 @@ const ExpensesView: React.FC = () => {
                 onChange={(e) => setItemId(e.target.value ? Number(e.target.value) : null)}
                 label="Item"
               >
-                {expenseNature === ExpenseNature.INDIRECT && (
-                  <MenuItem value="">None</MenuItem>
-                )}
                 {items.map((item) => (
                   <MenuItem key={item.id} value={item.id}>
                     {item.name}
@@ -240,46 +191,44 @@ const ExpensesView: React.FC = () => {
               </Select>
             </FormControl>
           </Box>
-            <Box sx={{ display: "flex", gap: 2 }}>
+
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <Button variant="contained" onClick={save} disabled={loading}>
+              {loading ? <CircularProgress size={24} /> : editingId ? "Update" : "Create"}
+            </Button>
+
+            {editingId && (
               <Button
-                variant="contained"
-                onClick={save}
-                disabled={loading}
+                variant="outlined"
+                onClick={() => {
+                  setDescription("");
+                  setAmount(0);
+                  setExpenseNature(ExpenseNature.DIRECT);
+                  setType(ExpenseType.INGREDIENT);
+                  setItemId(null);
+                  editExpense({
+                    id: 0,
+                    description: "",
+                    amount: 0,
+                    type: ExpenseType.INGREDIENT,
+                    expenseNature: ExpenseNature.DIRECT,
+                    itemId: null,
+                    userId: null,
+                    organizationId: 0,
+                    createdAt: "",
+                  } as any);
+                }}
               >
-                {loading ? <CircularProgress size={24} /> : editingId ? "Update" : "Create"}
+                Cancel
               </Button>
-              {editingId && (
-                <Button
-                  variant="outlined"
-                  onClick={() => {
-                    setDescription("");
-                    setAmount(0);
-                    setExpenseNature(ExpenseNature.DIRECT);
-                    setType(ExpenseType.INGREDIENT);
-                    setItemId(null);
-                    editExpense({
-                      id: 0,
-                      description: "",
-                      amount: 0,
-                      type: ExpenseType.INGREDIENT,
-                      expenseNature: ExpenseNature.DIRECT,
-                      itemId: null,
-                      userId: null,
-                      organizationId: 0,
-                      createdAt: "",
-                    } as any);
-                  }}
-                >
-                  Cancel
-                </Button>
-              )}
-            </Box>
+            )}
+          </Box>
         </Paper>
 
         {/* Date Filter & Nature Tabs */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, gap: 2, flexWrap: "wrap" }}>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-            <FormControl sx={{ minWidth: 140 }}>
+          <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+            <FormControl sx={{ minWidth: 120 }}>
               <InputLabel>View</InputLabel>
               <Select
                 value={expenseDateFilterMode}
@@ -288,9 +237,7 @@ const ExpensesView: React.FC = () => {
                   const mode = e.target.value as 'ALL' | 'DAILY' | 'MONTHLY';
                   setExpenseDateFilterMode(mode);
                   setExpensesPage(1);
-                  if (mode === 'ALL') {
-                    setExpenseSelectedDate("");
-                  }
+                  if (mode === 'ALL') setExpenseSelectedDate("");
                 }}
               >
                 <MenuItem value="ALL">All</MenuItem>
@@ -298,30 +245,19 @@ const ExpensesView: React.FC = () => {
                 <MenuItem value="MONTHLY">Monthly</MenuItem>
               </Select>
             </FormControl>
-            {expenseDateFilterMode === 'DAILY' && (
+
+            {(expenseDateFilterMode === 'DAILY' || expenseDateFilterMode === 'MONTHLY') && (
               <TextField
-                label="Date"
-                type="date"
+                type={expenseDateFilterMode === 'DAILY' ? 'date' : 'month'}
                 size="small"
+                label={expenseDateFilterMode === 'DAILY' ? "Date" : "Month"}
+                InputLabelProps={{ shrink: true }}
                 value={expenseSelectedDate}
                 onChange={(e) => {
                   setExpenseSelectedDate(e.target.value);
                   setExpensesPage(1);
                 }}
-                InputLabelProps={{ shrink: true }}
-              />
-            )}
-            {expenseDateFilterMode === 'MONTHLY' && (
-              <TextField
-                label="Month"
-                type="month"
-                size="small"
-                value={expenseSelectedDate}
-                onChange={(e) => {
-                  setExpenseSelectedDate(e.target.value);
-                  setExpensesPage(1);
-                }}
-                InputLabelProps={{ shrink: true }}
+                sx={{ width: { xs: "100%", sm: 140 } }}
               />
             )}
           </Box>
@@ -332,6 +268,8 @@ const ExpensesView: React.FC = () => {
               setActiveNatureTab(value);
               setExpensesPage(1);
             }}
+            variant="scrollable"
+            scrollButtons="auto"
           >
             <Tab label="All" value="ALL" />
             <Tab label="Direct" value={ExpenseNature.DIRECT} />
@@ -340,20 +278,20 @@ const ExpensesView: React.FC = () => {
         </Box>
 
         {/* Expenses List */}
-        {paginatedExpenses
-          .map((expense) => (
+        {paginatedExpenses.map((expense) => (
           <Paper
             key={expense.id}
             sx={{
               p: 2,
               mb: 2,
               display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: { xs: "flex-start", sm: "center" },
               borderRadius: 1,
             }}
           >
-            <Box>
+            <Box sx={{ mb: { xs: 1, sm: 0 } }}>
               <Typography variant="subtitle1">{expense.description}</Typography>
               <Typography variant="body2" color="text.secondary">
                 Rs. {expense.amount.toFixed(2)} • {expense.expenseNature}
@@ -393,4 +331,3 @@ const ExpensesView: React.FC = () => {
 };
 
 export default ExpensesView;
-

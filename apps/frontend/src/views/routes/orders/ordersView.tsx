@@ -65,7 +65,7 @@ const OrdersView: React.FC = () => {
 
   const isCollapsed = isSidebarCollapsed;
 
-  /** Calculate totals */
+  /** Calculate total price */
   const calculateTotal = (items: typeof orderItems) =>
     items.reduce((sum, oi) => sum + oi.quantity * oi.price, 0);
 
@@ -85,7 +85,6 @@ const OrdersView: React.FC = () => {
       });
     }
 
-    // MONTHLY filter
     return ordersToFilter.filter((o) => {
       const d = new Date(o.createdAt);
       return (
@@ -103,6 +102,9 @@ const OrdersView: React.FC = () => {
     ordersPage * ordersPerPage
   );
 
+  /** Responsive modal full-screen check */
+  const isMobile = window.innerWidth < 600;
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
@@ -110,7 +112,7 @@ const OrdersView: React.FC = () => {
       <Box
         sx={{
           flex: 1,
-          p: 4,
+          p: { xs: 2, sm: 4 },
           overflowY: "auto",
           transition: "margin 300ms ease",
           marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
@@ -130,7 +132,7 @@ const OrdersView: React.FC = () => {
         )}
 
         {/* Create Order Form */}
-        <Paper sx={{ p: 3, mb: 4, borderRadius: 1, display: "flex", flexDirection: "column", gap: 2 }}>
+        <Paper sx={{ p: 2, mb: 4, borderRadius: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Order Number"
             value={orderNumber}
@@ -140,8 +142,16 @@ const OrdersView: React.FC = () => {
 
           <Typography variant="subtitle2">Order Items</Typography>
           {orderItems.map((oi, index) => (
-            <Box key={index} sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-              <FormControl sx={{ flex: 1 }}>
+            <Box
+              key={index}
+              sx={{
+                display: "flex",
+                gap: 1,
+                flexWrap: "wrap",
+                alignItems: "center",
+              }}
+            >
+              <FormControl sx={{ flex: { xs: "100%", sm: 1 }, minWidth: 120 }}>
                 <InputLabel>Item</InputLabel>
                 <Select
                   value={oi.itemId}
@@ -161,14 +171,14 @@ const OrdersView: React.FC = () => {
                 type="number"
                 value={oi.quantity}
                 onChange={(e) => updateOrderItem(index, 'quantity', Number(e.target.value))}
-                sx={{ width: 120 }}
+                sx={{ width: { xs: "100%", sm: 120 } }}
               />
               <TextField
                 label="Price"
                 type="number"
                 value={oi.price}
                 onChange={(e) => updateOrderItem(index, 'price', parseFloat(e.target.value) || 0)}
-                sx={{ width: 120 }}
+                sx={{ width: { xs: "100%", sm: 120 } }}
               />
               <IconButton onClick={() => removeOrderItem(index)}>
                 <X size={20} />
@@ -186,7 +196,7 @@ const OrdersView: React.FC = () => {
             </Typography>
           )}
 
-          <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, mt: 2, flexWrap: "wrap" }}>
             <Button variant="contained" onClick={save} disabled={loading}>
               {loading ? <CircularProgress size={24} /> : "Create Order"}
             </Button>
@@ -194,7 +204,7 @@ const OrdersView: React.FC = () => {
         </Paper>
 
         {/* Edit Order Modal */}
-        <Dialog open={editModalOpen} onClose={closeEditModal} fullWidth maxWidth="md">
+        <Dialog open={editModalOpen} onClose={closeEditModal} fullWidth maxWidth="md" fullScreen={isMobile}>
           <DialogTitle>Edit Order</DialogTitle>
           <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
             <TextField label="Order Number" value={editOrderNumber} disabled fullWidth />
@@ -205,6 +215,7 @@ const OrdersView: React.FC = () => {
                 value={editStatus}
                 onChange={(e) => setEditStatus(e.target.value as OrderStatus)}
                 label="Status"
+                sx={{ minWidth: { xs: "100%", sm: 140 } }}
               >
                 <MenuItem value={OrderStatus.PENDING}>Pending</MenuItem>
                 <MenuItem value={OrderStatus.COMPLETED}>Completed</MenuItem>
@@ -214,8 +225,16 @@ const OrdersView: React.FC = () => {
 
             <Typography variant="subtitle2">Order Items</Typography>
             {editOrderItems.map((oi, index) => (
-              <Box key={index} sx={{ display: "flex", gap: 2, alignItems: "center" }}>
-                <FormControl sx={{ flex: 1 }}>
+              <Box
+                key={index}
+                sx={{
+                  display: "flex",
+                  gap: 1,
+                  flexWrap: "wrap",
+                  alignItems: "center",
+                }}
+              >
+                <FormControl sx={{ flex: { xs: "100%", sm: 1 }, minWidth: 120 }}>
                   <InputLabel>Item</InputLabel>
                   <Select
                     value={oi.itemId}
@@ -235,14 +254,14 @@ const OrdersView: React.FC = () => {
                   type="number"
                   value={oi.quantity}
                   onChange={(e) => updateEditOrderItem(index, 'quantity', Number(e.target.value))}
-                  sx={{ width: 120 }}
+                  sx={{ width: { xs: "100%", sm: 120 } }}
                 />
                 <TextField
                   label="Price"
                   type="number"
                   value={oi.price}
                   onChange={(e) => updateEditOrderItem(index, 'price', parseFloat(e.target.value) || 0)}
-                  sx={{ width: 120 }}
+                  sx={{ width: { xs: "100%", sm: 120 } }}
                 />
                 <IconButton onClick={() => removeEditOrderItem(index)}>
                   <X size={20} />
@@ -261,7 +280,7 @@ const OrdersView: React.FC = () => {
             )}
           </DialogContent>
 
-          <DialogActions>
+          <DialogActions sx={{ flexWrap: "wrap", gap: 1 }}>
             <Button onClick={closeEditModal}>Cancel</Button>
             <Button variant="contained" onClick={saveEdit} disabled={loading}>
               {loading ? <CircularProgress size={24} /> : "Save Changes"}
@@ -271,7 +290,7 @@ const OrdersView: React.FC = () => {
 
         {/* Filters & Status Tabs */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, gap: 2, flexWrap: "wrap" }}>
-          <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
+          <Box sx={{ display: "flex", gap: 1, alignItems: "center", flexWrap: "wrap" }}>
             <FormControl sx={{ minWidth: 140 }}>
               <InputLabel>View</InputLabel>
               <Select
@@ -302,7 +321,12 @@ const OrdersView: React.FC = () => {
             )}
           </Box>
 
-          <Tabs value={activeStatusTab} onChange={(_, value) => { setActiveStatusTab(value); setOrdersPage(1); }}>
+          <Tabs
+            value={activeStatusTab}
+            onChange={(_, value) => { setActiveStatusTab(value); setOrdersPage(1); }}
+            variant="scrollable"
+            scrollButtons="auto"
+          >
             <Tab label="Pending" value={OrderStatus.PENDING} />
             <Tab label="Completed" value={OrderStatus.COMPLETED} />
             <Tab label="Cancelled" value={OrderStatus.CANCELLED} />
@@ -312,7 +336,7 @@ const OrdersView: React.FC = () => {
         {/* Orders List */}
         {paginatedOrders.map((order) => (
           <Paper key={order.id} sx={{ p: 2, mb: 2, borderRadius: 1 }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", flexWrap: "wrap", alignItems: "center", mb: 1 }}>
               <Box>
                 <Typography variant="subtitle1">{order.orderNumber}</Typography>
                 <Typography variant="body2" color="text.secondary">
@@ -320,12 +344,12 @@ const OrdersView: React.FC = () => {
                 </Typography>
               </Box>
 
-              <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
+              <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", alignItems: "center", mt: { xs: 1, sm: 0 } }}>
                 <Select
                   size="small"
                   value={order.status}
                   onChange={(e) => updateOrderStatusInline(order.id, e.target.value as OrderStatus)}
-                  sx={{ minWidth: 140 }}
+                  sx={{ minWidth: { xs: "100%", sm: 140 } }}
                 >
                   <MenuItem value={OrderStatus.PENDING}>Pending</MenuItem>
                   <MenuItem value={OrderStatus.COMPLETED}>Completed</MenuItem>
@@ -345,7 +369,7 @@ const OrdersView: React.FC = () => {
 
             <Box sx={{ mt: 1 }}>
               {order.orderItems.map((oi) => (
-                <Typography key={oi.id} variant="body2">
+                <Typography key={oi.id} variant="body2" sx={{ wordBreak: "break-word" }}>
                   {oi.item?.name} x {oi.quantity} @ Rs. {oi.price.toFixed(2)} = Rs. {(oi.quantity * oi.price).toFixed(2)}
                 </Typography>
               ))}

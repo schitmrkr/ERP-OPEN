@@ -17,7 +17,7 @@ export const useExpensesViewModel = () => {
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
-  const getAuthHeaders = (): HeadersInit => {
+  const getAuthHeaders = (): Record<string, string> => {
     const token = localStorage.getItem("token");
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
@@ -26,7 +26,7 @@ export const useExpensesViewModel = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/expenses`, {
-        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
+        headers: getAuthHeaders(),
       });
       setExpenses(res.data);
     } catch (err: any) {
@@ -41,7 +41,7 @@ export const useExpensesViewModel = () => {
   const fetchItems = async () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/items`, {
-        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
+        headers: getAuthHeaders(),
       });
       setItems(res.data);
     } catch (err: any) {
@@ -89,13 +89,13 @@ export const useExpensesViewModel = () => {
         await axios.patch(
           `${BACKEND_URL}/api/expenses/${editingId}`,
           payload,
-          { headers: { "Content-Type": "application/json", ...Object.fromEntries(getAuthHeaders() as [string, string][]), } }
+          { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
         );
       } else {
         await axios.post(
           `${BACKEND_URL}/api/expenses`,
           payload,
-          { headers: { "Content-Type": "application/json", ...Object.fromEntries(getAuthHeaders() as [string, string][]), } }
+          { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
         );
       }
 
@@ -135,7 +135,7 @@ export const useExpensesViewModel = () => {
     setLoading(true);
     try {
       await axios.delete(`${BACKEND_URL}/api/expenses/${id}`, {
-        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
+        headers: getAuthHeaders(),
       });
       setNotification({ type: "success", message: "Expense deleted successfully" });
       fetchExpenses();
