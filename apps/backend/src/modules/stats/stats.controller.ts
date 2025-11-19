@@ -6,7 +6,7 @@ import {
     Request,
     BadRequestException,
 } from '@nestjs/common';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { StatService } from './stats.service';
 import { DashboardStatsDto } from './dto/dashboard-stats.dto';
 

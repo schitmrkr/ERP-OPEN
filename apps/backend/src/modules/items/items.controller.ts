@@ -16,7 +16,7 @@ import {
 import { ItemsService } from './items.service';
 import { CreateItemsDto, UpdateItemsDto } from './dto';
 import { Item } from '@prisma/client';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { Request as ExpressRequest } from 'express';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 

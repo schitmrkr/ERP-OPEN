@@ -2,8 +2,8 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, ParseIntPipe, UseGua
 import { UserService } from './users.service';
 import { CreateUserDto, UpdateUserDto } from './dto';
 import { User, UserRole } from '@prisma/client';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../../common/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 

@@ -15,7 +15,7 @@ import {
 import { ExpensesService } from './expenses.service';
 import { CreateExpenseDto, UpdateExpenseDto } from './dto';
 import { Expense, ExpenseType, ExpenseNature } from '@prisma/client';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
 @UseGuards(JwtAuthGuard)

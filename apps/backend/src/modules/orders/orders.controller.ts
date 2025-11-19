@@ -14,7 +14,7 @@ import { Controller,
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, UpdateOrderDto } from './dto';
 import { Order } from '@prisma/client';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
 @UseGuards(JwtAuthGuard)

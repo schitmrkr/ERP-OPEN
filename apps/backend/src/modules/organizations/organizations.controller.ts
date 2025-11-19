@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, ParseIntPipe, UseGuards, Request, NotFoundException } from '@nestjs/common';
 import { OrganizationService } from './organizations.service';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { BootstrapGuard } from '../auth/guards/bootstrap.guard';
+import { JwtAuthGuard } from '../../common/guards/jwt-auth.guard';
+import { BootstrapGuard } from '../../common/guards/bootstrap.guard';
 import { CreateOrganizationWithOwnerDto } from './dto/create-organization.dto';
 import { PrismaService } from '../../shared/prisma/prisma.service';
 
