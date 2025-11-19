@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Box, Typography, List, ListItemButton, ListItemIcon, ListItemText, IconButton, Button } from '@mui/material';
 import { LayoutDashboard, ShoppingCart, Package, Receipt, Users, ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import { useAuth } from '../../../hooks/useAuth';
+import { useMediaQuery } from '@mui/material';
 
 export const drawerWidth = 240;
 export const collapsedWidth = 72;
@@ -116,6 +117,8 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
     navigate('/login');
   };
 
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
   return (
     <Box
       component="nav"
@@ -228,7 +231,7 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
           <LogOut size={20} />
         </Button>
 
-        {/* Collapse Button */}
+        {!isMobile && 
         <IconButton
           onClick={toggleCollapse}
           aria-label={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
@@ -252,6 +255,7 @@ const ERPSidebar: React.FC<ERPSidebarProps> = ({ isCollapsed, toggleCollapse }) 
           )}
           <ToggleIcon size={20} />
         </IconButton>
+        }
       </Box>
     </Box>
   );

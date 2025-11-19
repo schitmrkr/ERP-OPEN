@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { type User, type CreateUserDto, type UpdateUserDto, UserRole } from "../../models/user";
+import { type User, type CreateUserDto, type UpdateUserDto, type UserRole } from "../../models/user";
 import axios, { AxiosError } from "axios";
 
 export const useUsersViewModel = () => {
@@ -8,7 +8,7 @@ export const useUsersViewModel = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<UserRole>(UserRole.CASHIER);
+  const [role, setRole] = useState<UserRole>("CASHIER");
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
@@ -22,7 +22,7 @@ export const useUsersViewModel = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/users`, {
-        headers: getAuthHeaders(),
+        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
       });
       setUsers(res.data);
     } catch (err: any) {
@@ -48,20 +48,20 @@ export const useUsersViewModel = () => {
         await axios.patch(
           `${BACKEND_URL}/api/users/${editingId}`,
           payload,
-          { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
+          { headers: { "Content-Type": "application/json", ...Object.fromEntries(getAuthHeaders() as [string, string][]), } }
         );
       } else {
         await axios.post(
           `${BACKEND_URL}/api/users`,
           payload,
-          { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
+          { headers: { "Content-Type": "application/json", ...Object.fromEntries(getAuthHeaders() as [string, string][]), } }
         );
       }
 
       setName("");
       setEmail("");
       setPassword("");
-      setRole(UserRole.CASHIER);
+      setRole("CASHIER");
       setEditingId(null);
       fetchUsers();
     } catch (err: any) {
@@ -91,7 +91,7 @@ export const useUsersViewModel = () => {
     setLoading(true);
     try {
       await axios.delete(`${BACKEND_URL}/api/users/${id}`, {
-        headers: getAuthHeaders(),
+        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
       });
       fetchUsers();
     } catch (err: any) {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Paper,
@@ -6,45 +6,62 @@ import {
   Button,
   TextField,
   CircularProgress,
-  IconButton
+  IconButton,
+  useMediaQuery,
 } from "@mui/material";
 import NotificationBox from "../../components/NotificationBox";
 import { Edit2, Trash2 } from "lucide-react";
-import ERPSidebar from "../../components/sidebar/ERPSidebar";
+import ERPSidebar, { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
 import { useItemsViewModel } from "../../../viewmodels/items/useItemsViewModel";
-import { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
-
 import { useUIStore } from "../../../stores/uiStore";
 
 const ItemsView: React.FC = () => {
-  const { 
+  const {
     items,
     loading,
     name,
     setName,
     sellingPrice,
     setSellingPrice,
+    inventoryQty,
+    setInventoryQty,
     save,
     remove,
     editItem,
     notification,
     setNotification,
+    avgCostPrices,
+    loadingAvgCost,
   } = useItemsViewModel();
 
   const { isSidebarCollapsed, toggleSidebar } = useUIStore();
   const isCollapsed = isSidebarCollapsed;
 
+  const isMobile = useMediaQuery("(max-width: 768px)");
+
+  const getItemAvgCost = (itemId: number) => {
+    return avgCostPrices?.items.find((i) => i.itemId === itemId)?.avgCostPrice ?? 0;
+  };
+
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
 
-      <Box sx={{  flex: 1,
-                  p: 4, 
-                  overflowY: 'auto',
-                  transition: 'margin 300ms ease',
-                  marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
-                  bgcolor: "background.default" }}>
-        <Typography variant="h4" gutterBottom>
+      <Box
+        sx={{
+          flex: 1,
+          p: isMobile ? 2 : 4,
+          overflowY: "auto",
+          transition: "margin 300ms ease",
+          marginLeft: isMobile
+            ? `${collapsedWidth}px`
+            : isCollapsed
+            ? `${collapsedWidth}px`
+            : `${drawerWidth}px`,
+          bgcolor: "background.default",
+        }}
+      >
+        <Typography variant={isMobile ? "h5" : "h4"} gutterBottom>
           Items
         </Typography>
 
@@ -57,24 +74,47 @@ const ItemsView: React.FC = () => {
         )}
 
         {/* Create/Edit Form */}
-        <Paper sx={{ p: 3, mb: 4, borderRadius: 1, display: "flex", gap: 2, alignItems: "center" }}>
+        <Paper
+          sx={{
+            p: 3,
+            mb: 4,
+            borderRadius: 1,
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            gap: 2,
+            alignItems: "center",
+          }}
+        >
           <TextField
+            fullWidth
             label="Item Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            sx={{ flex: 1 }}
           />
+
           <TextField
+            fullWidth={isMobile}
             label="Selling Price"
             type="number"
             value={sellingPrice}
             onChange={(e) => setSellingPrice(parseFloat(e.target.value))}
-            sx={{ width: 150 }}
+            sx={{ width: isMobile ? "100%" : 150 }}
           />
+
+          <TextField
+            fullWidth={isMobile}
+            label="Inventory Qty"
+            type="number"
+            value={inventoryQty}
+            onChange={(e) => setInventoryQty(parseInt(e.target.value) || 0)}
+            sx={{ width: isMobile ? "100%" : 150 }}
+          />
+
           <Button
             variant="contained"
             onClick={save}
             disabled={loading}
+            fullWidth={isMobile}
           >
             {loading ? <CircularProgress size={24} /> : "Save"}
           </Button>
@@ -88,17 +128,29 @@ const ItemsView: React.FC = () => {
               p: 2,
               mb: 2,
               display: "flex",
+              flexDirection: isMobile ? "column" : "row",
+              gap: isMobile ? 2 : 0,
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: isMobile ? "flex-start" : "center",
               borderRadius: 1,
             }}
           >
             <Box>
               <Typography variant="subtitle1">{item.name}</Typography>
+
               <Typography variant="body2" color="text.secondary">
-                Rs. {item.sellingPrice.toFixed(2)}
+                Selling Price: Rs. {item.sellingPrice.toFixed(2)}
+              </Typography>
+
+              <Typography variant="body2" sx={{ mt: 0.5 }}>
+                Inventory: <strong>{item.inventoryQty}</strong>
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                Avg Cost Price: Rs. {loadingAvgCost ? "..." : getItemAvgCost(item.id).toFixed(2)}
               </Typography>
             </Box>
+
             <Box sx={{ display: "flex", gap: 1 }}>
               <IconButton onClick={() => editItem(item)}>
                 <Edit2 size={20} />

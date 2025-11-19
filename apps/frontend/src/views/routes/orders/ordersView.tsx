@@ -19,30 +19,25 @@ import {
   Tab,
   Pagination,
 } from "@mui/material";
-import NotificationBox from "../../components/NotificationBox";
 import { Edit2, Trash2, Plus, X } from "lucide-react";
 import ERPSidebar from "../../components/sidebar/ERPSidebar";
+import NotificationBox from "../../components/NotificationBox";
 import { useOrdersViewModel } from "../../../viewmodels/orders/useOrdersViewModel";
 import { OrderStatus } from "../../../models/order";
 import { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
-
 import { useUIStore } from "../../../stores/uiStore";
 
 const OrdersView: React.FC = () => {
-  const { 
+  const {
     orders,
     items,
     loading,
-
-    // Create form
     orderNumber,
     setOrderNumber,
     orderItems,
     addOrderItem,
     removeOrderItem,
     updateOrderItem,
-
-    // Edit modal
     editModalOpen,
     editOrderNumber,
     editStatus,
@@ -53,7 +48,6 @@ const OrdersView: React.FC = () => {
     updateEditOrderItem,
     saveEdit,
     closeEditModal,
-
     save,
     remove,
     editOrder,
@@ -62,32 +56,27 @@ const OrdersView: React.FC = () => {
     updateOrderStatusInline,
   } = useOrdersViewModel();
 
+  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
   const [activeStatusTab, setActiveStatusTab] = useState<OrderStatus>(OrderStatus.PENDING);
-
-  // Pagination & date filtering
   const [ordersPage, setOrdersPage] = useState(1);
   const ordersPerPage = 10;
   const [orderDateFilterMode, setOrderDateFilterMode] = useState<'ALL' | 'DAILY' | 'MONTHLY'>('ALL');
   const [orderSelectedDate, setOrderSelectedDate] = useState<string>("");
 
-  const { isSidebarCollapsed, toggleSidebar } = useUIStore();
   const isCollapsed = isSidebarCollapsed;
 
-  const calculateTotal = () => {
-    return orderItems.reduce((sum, oi) => sum + (oi.quantity * oi.price), 0);
-  };
+  /** Calculate totals */
+  const calculateTotal = (items: typeof orderItems) =>
+    items.reduce((sum, oi) => sum + oi.quantity * oi.price, 0);
 
-  const calculateEditTotal = () => {
-    return editOrderItems.reduce((sum, oi) => sum + (oi.quantity * oi.price), 0);
-  };
-
+  /** Filter orders by date */
   const filterOrdersByDate = (ordersToFilter: typeof orders) => {
-    if (orderDateFilterMode === 'ALL' || !orderSelectedDate) return ordersToFilter;
+    if (orderDateFilterMode === "ALL" || !orderSelectedDate) return ordersToFilter;
     const selected = new Date(orderSelectedDate);
 
-    if (orderDateFilterMode === 'DAILY') {
-      return ordersToFilter.filter((order) => {
-        const d = new Date(order.createdAt);
+    if (orderDateFilterMode === "DAILY") {
+      return ordersToFilter.filter((o) => {
+        const d = new Date(o.createdAt);
         return (
           d.getFullYear() === selected.getFullYear() &&
           d.getMonth() === selected.getMonth() &&
@@ -96,9 +85,9 @@ const OrdersView: React.FC = () => {
       });
     }
 
-    // MONTHLY
-    return ordersToFilter.filter((order) => {
-      const d = new Date(order.createdAt);
+    // MONTHLY filter
+    return ordersToFilter.filter((o) => {
+      const d = new Date(o.createdAt);
       return (
         d.getFullYear() === selected.getFullYear() &&
         d.getMonth() === selected.getMonth()
@@ -106,24 +95,28 @@ const OrdersView: React.FC = () => {
     });
   };
 
-  const filteredOrdersByStatus = orders.filter((order) => order.status === activeStatusTab);
+  const filteredOrdersByStatus = orders.filter((o) => o.status === activeStatusTab);
   const filteredOrders = filterOrdersByDate(filteredOrdersByStatus);
   const ordersPageCount = Math.max(1, Math.ceil(filteredOrders.length / ordersPerPage));
   const paginatedOrders = filteredOrders.slice(
     (ordersPage - 1) * ordersPerPage,
-    ordersPage * ordersPerPage,
+    ordersPage * ordersPerPage
   );
 
   return (
     <Box sx={{ display: "flex", minHeight: "100vh" }}>
       <ERPSidebar isCollapsed={isCollapsed} toggleCollapse={toggleSidebar} />
 
-      <Box sx={{  flex: 1,
-                  p: 4, 
-                  overflowY: 'auto',
-                  transition: 'margin 300ms ease',
-                  marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
-                  bgcolor: "background.default" }}>
+      <Box
+        sx={{
+          flex: 1,
+          p: 4,
+          overflowY: "auto",
+          transition: "margin 300ms ease",
+          marginLeft: isCollapsed ? `${collapsedWidth}px` : `${drawerWidth}px`,
+          bgcolor: "background.default",
+        }}
+      >
         <Typography variant="h4" gutterBottom>
           Orders
         </Typography>
@@ -136,7 +129,7 @@ const OrdersView: React.FC = () => {
           />
         )}
 
-        {/* Create Form */}
+        {/* Create Order Form */}
         <Paper sx={{ p: 3, mb: 4, borderRadius: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Order Number"
@@ -144,9 +137,8 @@ const OrdersView: React.FC = () => {
             onChange={(e) => setOrderNumber(e.target.value)}
             fullWidth
           />
-          <Typography variant="subtitle2" gutterBottom>
-            Order Items
-          </Typography>
+
+          <Typography variant="subtitle2">Order Items</Typography>
           {orderItems.map((oi, index) => (
             <Box key={index} sx={{ display: "flex", gap: 2, alignItems: "center" }}>
               <FormControl sx={{ flex: 1 }}>
@@ -163,6 +155,7 @@ const OrdersView: React.FC = () => {
                   ))}
                 </Select>
               </FormControl>
+
               <TextField
                 label="Quantity"
                 type="number"
@@ -182,24 +175,19 @@ const OrdersView: React.FC = () => {
               </IconButton>
             </Box>
           ))}
-          <Button
-            variant="outlined"
-            startIcon={<Plus size={20} />}
-            onClick={addOrderItem}
-          >
+
+          <Button variant="outlined" startIcon={<Plus size={20} />} onClick={addOrderItem}>
             Add Item
           </Button>
+
           {orderItems.length > 0 && (
             <Typography variant="h6" color="primary">
-              Total: Rs. {calculateTotal().toFixed(2)}
+              Total: Rs. {calculateTotal(orderItems).toFixed(2)}
             </Typography>
           )}
+
           <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
-            <Button
-              variant="contained"
-              onClick={save}
-              disabled={loading}
-            >
+            <Button variant="contained" onClick={save} disabled={loading}>
               {loading ? <CircularProgress size={24} /> : "Create Order"}
             </Button>
           </Box>
@@ -209,12 +197,8 @@ const OrdersView: React.FC = () => {
         <Dialog open={editModalOpen} onClose={closeEditModal} fullWidth maxWidth="md">
           <DialogTitle>Edit Order</DialogTitle>
           <DialogContent sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 1 }}>
-            <TextField
-              label="Order Number"
-              value={editOrderNumber}
-              disabled
-              fullWidth
-            />
+            <TextField label="Order Number" value={editOrderNumber} disabled fullWidth />
+
             <FormControl fullWidth>
               <InputLabel>Status</InputLabel>
               <Select
@@ -228,9 +212,7 @@ const OrdersView: React.FC = () => {
               </Select>
             </FormControl>
 
-            <Typography variant="subtitle2" gutterBottom>
-              Order Items
-            </Typography>
+            <Typography variant="subtitle2">Order Items</Typography>
             {editOrderItems.map((oi, index) => (
               <Box key={index} sx={{ display: "flex", gap: 2, alignItems: "center" }}>
                 <FormControl sx={{ flex: 1 }}>
@@ -247,6 +229,7 @@ const OrdersView: React.FC = () => {
                     ))}
                   </Select>
                 </FormControl>
+
                 <TextField
                   label="Quantity"
                   type="number"
@@ -266,32 +249,27 @@ const OrdersView: React.FC = () => {
                 </IconButton>
               </Box>
             ))}
-            <Button
-              variant="outlined"
-              startIcon={<Plus size={20} />}
-              onClick={addEditOrderItem}
-            >
+
+            <Button variant="outlined" startIcon={<Plus size={20} />} onClick={addEditOrderItem}>
               Add Item
             </Button>
+
             {editOrderItems.length > 0 && (
               <Typography variant="h6" color="primary">
-                Total: Rs. {calculateEditTotal().toFixed(2)}
+                Total: Rs. {calculateTotal(editOrderItems).toFixed(2)}
               </Typography>
             )}
           </DialogContent>
+
           <DialogActions>
             <Button onClick={closeEditModal}>Cancel</Button>
-            <Button
-              variant="contained"
-              onClick={saveEdit}
-              disabled={loading}
-            >
+            <Button variant="contained" onClick={saveEdit} disabled={loading}>
               {loading ? <CircularProgress size={24} /> : "Save Changes"}
             </Button>
           </DialogActions>
         </Dialog>
 
-        {/* Date Filter & Status Tabs */}
+        {/* Filters & Status Tabs */}
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, gap: 2, flexWrap: "wrap" }}>
           <Box sx={{ display: "flex", gap: 2, alignItems: "center" }}>
             <FormControl sx={{ minWidth: 140 }}>
@@ -303,9 +281,7 @@ const OrdersView: React.FC = () => {
                   const mode = e.target.value as 'ALL' | 'DAILY' | 'MONTHLY';
                   setOrderDateFilterMode(mode);
                   setOrdersPage(1);
-                  if (mode === 'ALL') {
-                    setOrderSelectedDate("");
-                  }
+                  if (mode === 'ALL') setOrderSelectedDate("");
                 }}
               >
                 <MenuItem value="ALL">All</MenuItem>
@@ -313,41 +289,20 @@ const OrdersView: React.FC = () => {
                 <MenuItem value="MONTHLY">Monthly</MenuItem>
               </Select>
             </FormControl>
-            {orderDateFilterMode === 'DAILY' && (
+
+            {(orderDateFilterMode === 'DAILY' || orderDateFilterMode === 'MONTHLY') && (
               <TextField
-                label="Date"
-                type="date"
+                type={orderDateFilterMode === 'DAILY' ? "date" : "month"}
                 size="small"
-                value={orderSelectedDate}
-                onChange={(e) => {
-                  setOrderSelectedDate(e.target.value);
-                  setOrdersPage(1);
-                }}
+                label={orderDateFilterMode === 'DAILY' ? "Date" : "Month"}
                 InputLabelProps={{ shrink: true }}
-              />
-            )}
-            {orderDateFilterMode === 'MONTHLY' && (
-              <TextField
-                label="Month"
-                type="month"
-                size="small"
                 value={orderSelectedDate}
-                onChange={(e) => {
-                  setOrderSelectedDate(e.target.value);
-                  setOrdersPage(1);
-                }}
-                InputLabelProps={{ shrink: true }}
+                onChange={(e) => { setOrderSelectedDate(e.target.value); setOrdersPage(1); }}
               />
             )}
           </Box>
 
-          <Tabs
-            value={activeStatusTab}
-            onChange={(_, value) => {
-              setActiveStatusTab(value);
-              setOrdersPage(1);
-            }}
-          >
+          <Tabs value={activeStatusTab} onChange={(_, value) => { setActiveStatusTab(value); setOrdersPage(1); }}>
             <Tab label="Pending" value={OrderStatus.PENDING} />
             <Tab label="Completed" value={OrderStatus.COMPLETED} />
             <Tab label="Cancelled" value={OrderStatus.CANCELLED} />
@@ -355,16 +310,8 @@ const OrdersView: React.FC = () => {
         </Box>
 
         {/* Orders List */}
-        {paginatedOrders
-          .map((order) => (
-          <Paper
-            key={order.id}
-            sx={{
-              p: 2,
-              mb: 2,
-              borderRadius: 1,
-            }}
-          >
+        {paginatedOrders.map((order) => (
+          <Paper key={order.id} sx={{ p: 2, mb: 2, borderRadius: 1 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
               <Box>
                 <Typography variant="subtitle1">{order.orderNumber}</Typography>
@@ -372,6 +319,7 @@ const OrdersView: React.FC = () => {
                   {order.user?.name} • {new Date(order.createdAt).toLocaleDateString()}
                 </Typography>
               </Box>
+
               <Box sx={{ display: "flex", gap: 1, alignItems: "center" }}>
                 <Select
                   size="small"
@@ -383,23 +331,19 @@ const OrdersView: React.FC = () => {
                   <MenuItem value={OrderStatus.COMPLETED}>Completed</MenuItem>
                   <MenuItem value={OrderStatus.CANCELLED}>Cancelled</MenuItem>
                 </Select>
+
                 {order.status === OrderStatus.PENDING && (
-                  <IconButton onClick={() => editOrder(order)}>
-                    <Edit2 size={20} />
-                  </IconButton>
+                  <IconButton onClick={() => editOrder(order)}><Edit2 size={20} /></IconButton>
                 )}
-                <IconButton onClick={() => remove(order.id)}>
-                  <Trash2 size={20} />
-                </IconButton>
+                <IconButton onClick={() => remove(order.id)}><Trash2 size={20} /></IconButton>
               </Box>
             </Box>
+
             <Typography variant="h6" color="primary">
               Total: Rs. {order.totalAmount.toFixed(2)}
             </Typography>
+
             <Box sx={{ mt: 1 }}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                Items:
-              </Typography>
               {order.orderItems.map((oi) => (
                 <Typography key={oi.id} variant="body2">
                   {oi.item?.name} x {oi.quantity} @ Rs. {oi.price.toFixed(2)} = Rs. {(oi.quantity * oi.price).toFixed(2)}
@@ -429,4 +373,3 @@ const OrdersView: React.FC = () => {
 };
 
 export default OrdersView;
-

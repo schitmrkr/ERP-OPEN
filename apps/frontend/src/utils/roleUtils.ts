@@ -1,4 +1,4 @@
-import { UserRole } from '../models/user';
+import { type UserRole } from '../models/user';
 
 /**
  * Check if user has any of the required roles
@@ -12,21 +12,21 @@ export const hasRole = (userRole: UserRole | undefined, requiredRoles: UserRole[
  * Check if user is owner or admin
  */
 export const isOwnerOrAdmin = (userRole: UserRole | undefined): boolean => {
-  return hasRole(userRole, [UserRole.OWNER, UserRole.ADMIN]);
+  return hasRole(userRole, ["OWNER", "ADMIN"]);
 };
 
 /**
  * Check if user is owner
  */
 export const isOwner = (userRole: UserRole | undefined): boolean => {
-  return userRole === UserRole.OWNER;
+  return userRole === "OWNER";
 };
 
 /**
  * Check if user is admin
  */
 export const isAdmin = (userRole: UserRole | undefined): boolean => {
-  return userRole === UserRole.ADMIN;
+  return userRole === "ADMIN";
 };
 
 /**

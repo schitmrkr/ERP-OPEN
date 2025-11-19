@@ -6,7 +6,8 @@ export type ExpenseType =
   | 'MAINTENANCE'
   | 'RENT'
   | 'SALARY'
-  | 'OTHER';
+  | 'OTHER'
+    'WASTAGE';
 
 export const ExpenseType = {
   INGREDIENT: 'INGREDIENT' as const,
@@ -17,6 +18,7 @@ export const ExpenseType = {
   RENT: 'RENT' as const,
   SALARY: 'SALARY' as const,
   OTHER: 'OTHER' as const,
+  WASTAGE: 'WASTAGE' as const
 };
 
 export type ExpenseNature = 'DIRECT' | 'INDIRECT';

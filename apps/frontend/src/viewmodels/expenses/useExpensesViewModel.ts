@@ -26,7 +26,7 @@ export const useExpensesViewModel = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/expenses`, {
-        headers: getAuthHeaders(),
+        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
       });
       setExpenses(res.data);
     } catch (err: any) {
@@ -41,7 +41,7 @@ export const useExpensesViewModel = () => {
   const fetchItems = async () => {
     try {
       const res = await axios.get(`${BACKEND_URL}/api/items`, {
-        headers: getAuthHeaders(),
+        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
       });
       setItems(res.data);
     } catch (err: any) {
@@ -89,13 +89,13 @@ export const useExpensesViewModel = () => {
         await axios.patch(
           `${BACKEND_URL}/api/expenses/${editingId}`,
           payload,
-          { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
+          { headers: { "Content-Type": "application/json", ...Object.fromEntries(getAuthHeaders() as [string, string][]), } }
         );
       } else {
         await axios.post(
           `${BACKEND_URL}/api/expenses`,
           payload,
-          { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
+          { headers: { "Content-Type": "application/json", ...Object.fromEntries(getAuthHeaders() as [string, string][]), } }
         );
       }
 
@@ -135,7 +135,7 @@ export const useExpensesViewModel = () => {
     setLoading(true);
     try {
       await axios.delete(`${BACKEND_URL}/api/expenses/${id}`, {
-        headers: getAuthHeaders(),
+        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
       });
       setNotification({ type: "success", message: "Expense deleted successfully" });
       fetchExpenses();

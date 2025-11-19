@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { type Organization, type CreateOrganizationDto, type UpdateOrganizationDto } from "../../models/organization";
+import { type Organization } from "../../models/organization";
 import axios, { AxiosError } from "axios";
 
 export const useOrganizationsViewModel = () => {
@@ -19,7 +19,7 @@ export const useOrganizationsViewModel = () => {
     setLoading(true);
     try {
       const res = await axios.get(`${BACKEND_URL}/api/organizations`, {
-        headers: getAuthHeaders(),
+        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
       });
       // Backend returns single org for non-admin users, or array for admin
       const data = Array.isArray(res.data) ? res.data : [res.data];
@@ -42,13 +42,13 @@ export const useOrganizationsViewModel = () => {
         await axios.patch(
           `${BACKEND_URL}/api/organizations/${editingId}`,
           { name },
-          { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
+          { headers: { "Content-Type": "application/json", ...Object.fromEntries(getAuthHeaders() as [string, string][]), } }
         );
       } else {
         await axios.post(
           `${BACKEND_URL}/api/organizations`,
           { name },
-          { headers: { "Content-Type": "application/json", ...getAuthHeaders() } }
+          { headers: { "Content-Type": "application/json", ...Object.fromEntries(getAuthHeaders() as [string, string][]), } }
         );
       }
 
@@ -79,7 +79,7 @@ export const useOrganizationsViewModel = () => {
     setLoading(true);
     try {
       await axios.delete(`${BACKEND_URL}/api/organizations/${id}`, {
-        headers: getAuthHeaders(),
+        headers: Object.fromEntries(getAuthHeaders() as [string, string][]),
       });
       fetchOrganizations();
     } catch (err: any) {

@@ -161,7 +161,11 @@ const ExpensesView: React.FC = () => {
                 onChange={(e) => setType(e.target.value as ExpenseType)}
                 label="Type"
               >
-                {/* DIRECT-allowed types */}
+                <MenuItem
+                  value={ExpenseType.WASTAGE}
+                >
+                  Wastage
+                </MenuItem>
                 <MenuItem
                   value={ExpenseType.INGREDIENT}
                   disabled={expenseNature === ExpenseNature.INDIRECT}
@@ -187,7 +191,6 @@ const ExpensesView: React.FC = () => {
                   Transport
                 </MenuItem>
 
-                {/* INDIRECT-allowed types */}
                 <MenuItem
                   value={ExpenseType.MAINTENANCE}
                   disabled={expenseNature === ExpenseNature.DIRECT}

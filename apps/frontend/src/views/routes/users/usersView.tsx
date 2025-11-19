@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Paper,
@@ -16,7 +16,7 @@ import {
 import { Edit2, Trash2 } from "lucide-react";
 import ERPSidebar from "../../components/sidebar/ERPSidebar";
 import { useUsersViewModel } from "../../../viewmodels/users/useUsersViewModel";
-import { UserRole } from "../../../models/user";
+import { type UserRole } from "../../../models/user";
 import { useAuth } from "../../../hooks/useAuth";
 import { canModifyUsers } from "../../../utils/roleUtils";
 import { collapsedWidth, drawerWidth } from "../../components/sidebar/ERPSidebar";
@@ -100,10 +100,10 @@ const UsersView: React.FC = () => {
                 onChange={(e) => setRole(e.target.value as UserRole)}
                 label="Role"
               >
-                <MenuItem value={UserRole.OWNER}>Owner</MenuItem>
-                <MenuItem value={UserRole.ADMIN}>Admin</MenuItem>
-                <MenuItem value={UserRole.MANAGER}>Manager</MenuItem>
-                <MenuItem value={UserRole.CASHIER}>Cashier</MenuItem>
+                <MenuItem value={"OWNER"}>Owner</MenuItem>
+                <MenuItem value={"ADMIN"}>Admin</MenuItem>
+                <MenuItem value={"MANAGER>"}>Manager</MenuItem>
+                <MenuItem value={"CASHIER"}>Cashier</MenuItem>
               </Select>
             </FormControl>
           </Box>
@@ -122,8 +122,8 @@ const UsersView: React.FC = () => {
                   setName("");
                   setEmail("");
                   setPassword("");
-                  setRole(UserRole.CASHIER);
-                  editUser({ id: 0, name: "", email: "", role: UserRole.CASHIER, organizationId: 0, createdAt: "", updatedAt: "" });
+                  setRole("CASHIER");
+                  editUser({ id: 0, name: "", email: "", role: "CASHIER", organizationId: 0, createdAt: "", updatedAt: "" });
                 }}
               >
                 Cancel

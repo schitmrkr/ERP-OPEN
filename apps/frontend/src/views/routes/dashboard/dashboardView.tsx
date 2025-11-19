@@ -26,13 +26,13 @@ const DashboardView: React.FC = () => {
     averageItemPrice,
     recentOrders,
     topItems,
-    weeklyOrders,
+    // weeklyOrders,
     weeklySales,
     weeklyExpenses,
-    monthlyOrders,
+    // monthlyOrders,
     monthlySales,
     monthlyExpenses,
-    yearlyOrders,
+    // yearlyOrders,
     yearlySales,
     yearlyExpenses,
     chartData,
@@ -141,12 +141,14 @@ const DashboardView: React.FC = () => {
                     { 
                       data: chartData.expenses.map((p) => p.total), 
                       label: "Expenses", 
-                      shape: 'diamond',
+                      shape: "cross",
+                      color: "#F44336"
                     },
                     { 
                       data: chartData.sales.map((p) => p.total), 
                       label: "Sales", 
-                      shape: 'cross'
+                      shape: "diamond",
+                      color: "#2196F3"
                     },
                   ]}
                   xAxis={[{ data: chartData.sales.map((p) => p.key), scaleType: 'point' }]}
@@ -166,7 +168,8 @@ const DashboardView: React.FC = () => {
                       return sale - expense; 
                     }),
                     label: "Profit",
-                    shape: 'diamond' 
+                    shape: "star",
+                    color: "#9C27B0"
                   }]}
                   xAxis={[
                     { 
