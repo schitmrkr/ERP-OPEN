@@ -1,6 +1,13 @@
 import { BaseException } from './base.exception';
 import { HttpStatus } from '@nestjs/common';
 
+
+export class PrismaException extends BaseException {
+  constructor(message: string, details?: any) {
+    super(message, HttpStatus.BAD_REQUEST, details);
+  }
+}
+
 export class BadRequestException extends BaseException {
   constructor(message = 'Bad request', details?: any) {
     super(message, HttpStatus.BAD_REQUEST, details);
