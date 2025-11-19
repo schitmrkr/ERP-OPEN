@@ -7,7 +7,7 @@ services:
       context: ..
       dockerfile: docker/backend.dockerFile
     ports:
-      - "4000:4000"
+      - "3000:3000"
     env_file:
       - ../apps/backend/.env
 
