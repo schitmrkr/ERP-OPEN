@@ -5,7 +5,7 @@ BACKEND_DIR="$APP_DIR/apps/backend"
 FRONTEND_DIR="$APP_DIR/apps/frontend"
 
 printf "
-🚀 Starting deployment...
+Starting deployment...
 "
 
 cd $APP_DIR
@@ -18,10 +18,10 @@ echo " Backend (NestJS)"
 echo "---------------------------------------------"
 
 cd $BACKEND_DIR
-echo "🔧 Installing backend dependencies..."
+echo "Installing backend dependencies..."
 npm install --legacy-peer-deps
 
-echo "⚡ Loading environment variables..."
+echo "Loading environment variables..."
 export $(grep -v '^#' .env | xargs)
 
 echo "⚡ Generating Prisma client..."
@@ -43,13 +43,13 @@ cd $FRONTEND_DIR
 echo "Removing package-lock.json and node modules..."
 rm -rf node_modules package-lock.json
 
-echo "🔧 Installing frontend dependencies..."
+echo "Installing frontend dependencies..."
 npm install --legacy-peer-deps
 
 echo "⚡ Loading frontend environment variables..."
 export $(grep -v '^#' .env | xargs)
 
-echo "🏗️ Building frontend..."
+echo "Building frontend..."
 npm run build
 
 
@@ -58,4 +58,4 @@ pm2 serve dist 3000 --spa --name frontend || pm2 restart frontend
 
 
 echo "
-🎉 Deployment complete!"
+Deployment complete!"
