@@ -54,7 +54,7 @@ npm run build
 
 
 echo "Serving frontend via PM2 on port 3000..."
-pm2 serve dist 3000 --spa --name frontend || pm2 restart frontend
+pm2 serve dist 5173 --spa --name frontend || pm2 restart frontend
 
 
 echo "
