@@ -1,0 +1,50 @@
+set -e
+
+APP_DIR="/home/ubuntu/app"
+BACKEND_DIR="$APP_DIR/apps/backend"
+FRONTEND_DIR="$APP_DIR/apps/frontend"
+
+printf "
+🚀 Starting deployment...
+"
+
+cd $APP_DIR
+echo "Pulling latest repo..."
+git reset --hard
+git pull origin main
+
+echo "---------------------------------------------"
+echo " Backend (NestJS)"
+echo "---------------------------------------------"
+
+cd $BACKEND_DIR
+echo "🔧 Installing backend dependencies..."
+npm install --legacy-peer-deps
+
+echo "🏗️ Building backend..."
+npm run build
+
+echo "Restarting backend using PM2..."
+pm2 restart backend || pm2 start dist/main.js --name backend
+
+
+echo "---------------------------------------------"
+echo " Frontend (React + Vite)"
+echo "---------------------------------------------"
+
+
+cd $FRONTEND_DIR
+echo "🔧 Installing frontend dependencies..."
+npm install --legacy-peer-deps
+
+
+echo "🏗️ Building frontend..."
+npm run build
+
+
+echo "Serving frontend via PM2 on port 3000..."
+pm2 serve dist 3000 --spa --name frontend || pm2 restart frontend
+
+
+echo "
+🎉 Deployment complete!"
