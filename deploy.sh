@@ -21,6 +21,9 @@ cd $BACKEND_DIR
 echo "🔧 Installing backend dependencies..."
 npm install --legacy-peer-deps
 
+echo "⚡ Generating Prisma client..."
+npx prisma generate
+
 echo "🏗️ Building backend..."
 npm run build
 
