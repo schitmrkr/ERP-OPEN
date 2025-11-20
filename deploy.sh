@@ -21,6 +21,9 @@ cd $BACKEND_DIR
 echo "🔧 Installing backend dependencies..."
 npm install --legacy-peer-deps
 
+echo "⚡ Loading environment variables..."
+export $(grep -v '^#' .env | xargs)
+
 echo "⚡ Generating Prisma client..."
 npx prisma generate
 
@@ -40,6 +43,8 @@ cd $FRONTEND_DIR
 echo "🔧 Installing frontend dependencies..."
 npm install --legacy-peer-deps
 
+echo "⚡ Loading frontend environment variables..."
+export $(grep -v '^#' .env | xargs)
 
 echo "🏗️ Building frontend..."
 npm run build
