@@ -40,6 +40,9 @@ echo "---------------------------------------------"
 
 
 cd $FRONTEND_DIR
+echo "Removing package-lock.json and node modules..."
+rm -rf node_modules package-lock.json
+
 echo "🔧 Installing frontend dependencies..."
 npm install --legacy-peer-deps
 
