@@ -29,10 +29,5 @@ jobs:
 
       - name: Run deploy script on EC2
         run: |
-          EC2_USER=${{ secrets.EC2_USER }}
-          EC2_HOST=${{ secrets.EC2_HOST }}
-          ssh -i ~/.ssh/ec2_key.pem -p 22 -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << EOF
-          cd /home/$EC2_USER/app
-          chmod +x deploy.sh
-          ./deploy.sh
-          EOF
+          ssh -i ~/.ssh/ec2_key.pem -p 22 -o StrictHostKeyChecking=no \
+          ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "cd /home/${{ secrets.EC2_USER }}/app && chmod +x deploy.sh && ./deploy.sh"
