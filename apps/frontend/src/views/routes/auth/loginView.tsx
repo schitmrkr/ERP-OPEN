@@ -89,7 +89,7 @@ const LoginView: React.FC = () => {
                 mb: 0.5,
               }}
             >
-              MoERP Console
+              MooERP Console
             </Typography>
 
             <Typography 

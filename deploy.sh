@@ -55,7 +55,7 @@ npm run build
 echo "Removing old PM2 frontend process (if exists)..."
 pm2 delete frontend || true
 
-echo "🚀 Serving frontend on port 5173..."
+echo "Serving frontend on port 5173..."
 pm2 serve dist 5173 --spa --name frontend
 
 echo "
