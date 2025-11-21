@@ -7,7 +7,7 @@ import { OrganizationModule } from './modules/organizations/organizations.module
 import { AuthModule } from './modules/auth/auth.module';
 import { StatModule } from './modules/stats/stats.module';
 
-import { HealthModule } from './health/health.module';
+import { HealthModule } from './modules/health/health.module';
 
 import { PrismaModule } from './shared/prisma/prisma.module'
 
