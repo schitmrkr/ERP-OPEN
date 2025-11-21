@@ -52,10 +52,11 @@ export $(grep -v '^#' .env | xargs)
 echo "Building frontend..."
 npm run build
 
+echo "Removing old PM2 frontend process (if exists)..."
+pm2 delete frontend || true
 
-echo "Serving frontend via PM2 on port 3000..."
-pm2 serve dist 5173 --spa --name frontend || pm2 restart frontend
-
+echo "🚀 Serving frontend on port 5173..."
+pm2 serve dist 5173 --spa --name frontend
 
 echo "
 Deployment complete!" 
