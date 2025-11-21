@@ -1,6 +1,6 @@
 // prisma-error.mapper.ts
 import { Prisma } from '@prisma/client';
-import { NotFoundException, BadRequestException, PrismaException } from '../exceptions/common.exceptions';
+import { NotFoundException, BadRequestException, PrismaException } from './common.exceptions';
 
 export function mapPrismaError(error: any) {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {

@@ -7,10 +7,13 @@ import { OrganizationModule } from './modules/organizations/organizations.module
 import { AuthModule } from './modules/auth/auth.module';
 import { StatModule } from './modules/stats/stats.module';
 
+import { HealthModule } from './health/health.module';
+
 import { PrismaModule } from './shared/prisma/prisma.module'
 
 @Module({
   imports: [
+    HealthModule,
     UserModule, 
     ItemModule, 
     ExpenseModule, 
@@ -18,7 +21,7 @@ import { PrismaModule } from './shared/prisma/prisma.module'
     OrganizationModule,
     AuthModule,
     StatModule,
-    PrismaModule
+    PrismaModule,
   ],  
   controllers: [],
   providers: [],
