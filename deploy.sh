@@ -58,4 +58,4 @@ pm2 serve dist 5173 --spa --name frontend || pm2 restart frontend
 
 
 echo "
-Deployment complete!"
+Deployment complete!" 
