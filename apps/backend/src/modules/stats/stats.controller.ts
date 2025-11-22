@@ -17,7 +17,7 @@ constructor(private statService: StatService) {}
 
 @Get('dashboard')
 async getDashboardStats(@Request() req: any):  Promise<DashboardStatsDto> {
-    const organizationId = req.user.organizationId;
+    const organizationId: number = req.user.organizationId;
     if (!organizationId) {
     throw new BadRequestException('Organization not found in user context');
     }
@@ -29,7 +29,7 @@ async getChartStats(
     @Request() req: any,
     @Query('range') range: 'daily' | 'weekly' | 'monthly' | 'yearly',
 ) {
-    const organizationId = req.user.organizationId;
+    const organizationId: number = req.user.organizationId;
 
     if (!range) {
     throw new BadRequestException('range must be daily, monthly or yearly');

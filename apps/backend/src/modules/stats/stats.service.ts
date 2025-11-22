@@ -36,7 +36,6 @@ export class StatService {
       .sort((a, b) => b.sellingPrice - a.sellingPrice)
       .slice(0, 5);
 
-    // ========= TIME WINDOWS =========
     const now = new Date();
     const startOfWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 6);
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);

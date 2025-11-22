@@ -6,10 +6,11 @@ import { OrderModule } from './modules/orders/orders.module';
 import { OrganizationModule } from './modules/organizations/organizations.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { StatModule } from './modules/stats/stats.module';
+import { AnalyticModule } from './modules/analytics/analytics.module';
 
 import { HealthModule } from './modules/health/health.module';
 
-import { PrismaModule } from './shared/prisma/prisma.module'
+import { PrismaModule } from './shared/prisma/prisma.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { PrismaModule } from './shared/prisma/prisma.module'
     AuthModule,
     StatModule,
     PrismaModule,
+    AnalyticModule
   ],  
   controllers: [],
   providers: [],
